@@ -1,0 +1,30 @@
+# Pliki konfiguracyjne z tokenami API
+.env
+.env.local
+
+# Pliki wygenerowane
+*.html
+*.pdf
+!index.html
+!template1.html
+
+# Systemowe pliki
+.DS_Store
+Thumbs.db
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Tymczasowe pliki
+*.tmp
+*.temp
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json

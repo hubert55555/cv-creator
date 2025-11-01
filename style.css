@@ -1,0 +1,195 @@
+:root {
+  /* Wymiary strony A4 w milimetrach */
+  --page-width: 210mm;
+  --page-height: 297mm;
+  --page-margin-top: 12mm; /* Górny margines */
+  --page-margin-bottom: 15mm; /* Dolny margines */
+  --page-margin-sides: 12mm; /* Boczne marginesy */
+  --content-gap: 4mm; /* Odstępy między kolumnami/sekcjami */
+  /* Kolory motywu (możesz zmienić później) */
+  --c-bg: #0f2b3f; /* granatowy sidebar */
+  --c-accent: #1a4b6a; /* ciemny akcent */
+  --c-accent-2: #2f6f98; /* jaśniejszy akcent */
+  --c-text: #1f2d3a; /* tekst główny */
+  --c-muted: #6b7a86; /* opis */
+  --c-border: rgba(0, 0, 0, 0.15);
+  /* Skalowanie zawartości (ustawiane przez cv-auto-fit.js) */
+  --content-scale: 1;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  color: white;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 16px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.35;
+}
+
+@media screen {
+  body {
+    background: #f0f2f5; /* Tło tylko na podglądzie, nie w PDF */
+  }
+}
+
+/* Pojedyncza strona A4. Duplikuj element .page, aby tworzyć kolejne strony. */
+.page {
+  width: var(--page-width);
+  height: var(--page-height); /* Zmieniono z min-height na height dla dokładności */
+  margin: 0 auto 24px auto; /* odstęp między stronami w podglądzie */
+  background: #fff;
+  color: #000;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.12);
+  position: relative;
+  padding: var(--page-margin-top) var(--page-margin-sides) var(--page-margin-bottom) var(--page-margin-sides);
+  overflow: hidden; /* Zapobiega wyciekom cieni i treści poza stronę */
+}
+
+/* Struktura zawartości cv */
+.cv-header {
+  margin-bottom: var(--content-gap);
+}
+
+.cv-columns {
+  display: grid;
+  grid-template-columns: 70mm 1fr; /* stała szerokość paska bocznego jak w wzorcu */
+  gap: 8mm;
+  transform-origin: top left; /* Dla skalowania z cv-auto-fit.js */
+}
+
+.cv-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 4mm;
+  background: var(--c-bg);
+  color: #fff;
+  padding: 8mm 6mm;
+  border-radius: 2mm;
+}
+
+.cv-main {
+  display: flex;
+  flex-direction: column;
+  gap: 5mm;
+  color: var(--c-text);
+}
+
+.cv-footer {
+  margin-top: var(--content-gap);
+}
+
+/* Elementy w sidebarze */
+.avatar {
+  width: 35mm;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #fff;
+  margin: 0 auto 4mm auto;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.side-section { display: grid; gap: 1.5mm; }
+.side-title {
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  border-top: 2px solid rgba(255,255,255,0.35);
+  padding-top: 2mm;
+}
+.side-list { display: grid; gap: 1mm; font-size: 3.5mm; }
+.side-list small { opacity: 0.85; }
+
+/* Nagłówek po prawej */
+.name-title { color: var(--c-text); }
+.name-title h1 { margin: 0; font-size: 12mm; font-weight: 900; letter-spacing: 0.01em; }
+.name-title h1 .light { font-weight: 700; color: var(--c-muted); }
+.name-title .role { margin-top: 0.5mm; font-size: 4.3mm; letter-spacing: 0.08em; color: var(--c-muted); }
+.name-title .underline { width: 20mm; height: 2.2mm; background: var(--c-accent-2); margin: 2.5mm 0 0 0; border-radius: 2mm; }
+
+/* Bloki główne */
+.section { display: grid; gap: 2mm; }
+.section .title {
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-accent);
+}
+.section .rule { height: 1px; background: var(--c-border); }
+.section .text { color: var(--c-muted); font-size: 3.6mm; }
+
+/* Doświadczenie – oś czasu */
+.timeline { position: relative; display: grid; gap: 3mm; padding-left: 8mm; }
+.timeline::before { content: ""; position: absolute; left: 2.8mm; top: 2.5mm; bottom: 0; width: 1.4mm; background: rgba(26,75,106,0.3); border-radius: 1mm; }
+.timeline-item { position: relative; padding-left: 4mm; margin-bottom: 1mm; }
+.timeline-item::before { content: ""; position: absolute; left: -2mm; top: 6px; width: 5mm; height: 5mm; border-radius: 50%; background: var(--c-accent-2); box-shadow: 0 0 0 3px #fff inset; }
+.timeline-item h4 { margin: 0; font-weight: 800; }
+.timeline-item .meta { display: flex; justify-content: space-between; gap: 4mm; font-weight: 600; color: var(--c-text); margin-bottom: 0.5mm; }
+.timeline-item ul { margin: 1mm 0 0 0; padding-left: 5mm; color: var(--c-muted); line-height: 1.2; }
+
+/* Referencje – dwie kolumny */
+.references { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+.ref-card { border-top: 3px solid var(--c-accent-2); padding-top: 2mm; }
+.ref-card .name { font-weight: 700; }
+.ref-card .small { color: var(--c-muted); font-size: 3.4mm; }
+
+/* Pomocnicze klasy łamania stron przy druku */
+.page-break {
+  break-after: page;
+  page-break-after: always; /* dla starszych przeglądarek */
+}
+
+.avoid-break {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* Ustawienia fizycznej strony przy eksporcie do PDF */
+@page {
+  size: A4 portrait; /* 210mm x 297mm w pionie */
+  margin: 12mm 12mm 15mm 12mm; /* top right bottom left */
+}
+
+@media print {
+  html, body {
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    padding: 0;
+    background: #fff; /* Bez tła dookoła kartki */
+  }
+  body {
+    background: #fff;
+    padding: 0;
+  }
+  .page {
+    margin: 0 !important; /* bez odstępów między stronami w PDF */
+    box-shadow: none;
+    width: var(--page-width);
+    height: var(--page-height); /* Dokładna wysokość A4 */
+    padding: var(--page-margin-top) var(--page-margin-sides) var(--page-margin-bottom) var(--page-margin-sides);
+    overflow: hidden !important; /* Ukryj wszystko co wychodzi poza stronę przy druku */
+    page-break-after: always;
+    page-break-inside: avoid;
+  }
+  .page:last-child {
+    page-break-after: auto;
+  }
+  /* Transform scale działa przy druku, więc skalowanie będzie działać */
+  /* Opcjonalnie wymuś 100% skali druku (użytkownik powinien wybrać "Brak marginesów"/100%) */
+}

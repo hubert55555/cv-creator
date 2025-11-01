@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CV – Szablon A4 (Export do PDF)</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!--
+      Instrukcja użycia (skrót):
+      - Duplikuj <section class="page">, aby tworzyć kolejne strony A4.
+      - Wypełniaj sekcje: .cv-header, .cv-sidebar, .cv-main, .cv-footer.
+      - Używaj klas .avoid-break dla bloków, których nie chcesz dzielić między strony,
+        oraz .page-break do ręcznego wymuszenia nowej strony.
+      - Cały wygląd/typografia będą dopracowane później – tutaj tylko struktura i rozmiar A4.
+    -->
+
+    <section class="page" role="document" aria-label="Strona CV A4">
+      <div class="cv-columns" role="main">
+        <aside class="cv-sidebar" aria-label="Panel boczny">
+          <div class="avatar">
+            <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400&auto=format&fit=crop" alt="Zdjęcie profilowe" />
+          </div>
+
+          <section class="side-section">
+            <h3 class="side-title">Contact</h3>
+            <div class="side-list">
+              <div>+123-456-78980</div>
+              <div>hello@reallygreatsite.com</div>
+              <div>123 Anywhere St., Any City</div>
+              <div>www.reallygreatsite.com</div>
+            </div>
+          </section>
+
+          <section class="side-section">
+            <h3 class="side-title">Education</h3>
+            <div class="side-list">
+              <div>
+                <strong>2029 – 2030</strong><br />
+                Wardiere University<br />
+                Master of Business Management
+              </div>
+              <div>
+                <strong>2025 – 2029</strong><br />
+                Wardiere University<br />
+                Bachelor of Business<br />
+                GPA: 3.8 / 4.0
+              </div>
+            </div>
+          </section>
+
+          <section class="side-section">
+            <h3 class="side-title">Skills</h3>
+            <div class="side-list">
+              <div>Project Management</div>
+              <div>Public Relations</div>
+              <div>Teamwork</div>
+              <div>Time Management</div>
+              <div>Leadership</div>
+              <div>Effective Communication</div>
+              <div>Critical Thinking</div>
+            </div>
+          </section>
+
+          <section class="side-section">
+            <h3 class="side-title">Languages</h3>
+            <div class="side-list">
+              <div>English (Fluent)</div>
+              <div>French (Fluent)</div>
+              <div>German (Basics)</div>
+              <div>Spanish (Intermediate)</div>
+            </div>
+          </section>
+        </aside>
+
+        <main class="cv-main" aria-label="Treść główna">
+          <header class="name-title" role="banner" aria-label="Nagłówek CV">
+            <h1><span class="light">RICHARD</span> SANCHEZ</h1>
+            <div class="role">MARKETING MANAGER</div>
+            <div class="underline"></div>
+          </header>
+
+          <section class="section">
+            <div class="title">Profile</div>
+            <div class="rule"></div>
+            <p class="text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis nostrud exercitation.</p>
+          </section>
+
+          <section class="section">
+            <div class="title">Work Experience</div>
+            <div class="rule"></div>
+            <div class="timeline">
+              <article class="timeline-item">
+                <div class="meta"><div><strong>Borcelle Studio</strong><br />Marketing Manager & Specialist</div><div>2030 – PRESENT</div></div>
+                <ul>
+                  <li>Develop and execute comprehensive marketing strategies and campaigns.</li>
+                  <li>Lead and mentor a high-performing marketing team.</li>
+                  <li>Monitor brand consistency across channels and materials.</li>
+                </ul>
+              </article>
+              <article class="timeline-item">
+                <div class="meta"><div><strong>Fauget Studio</strong><br />Marketing Manager & Specialist</div><div>2025 – 2029</div></div>
+                <ul>
+                  <li>Create and manage the marketing budget, ensuring efficient allocation.</li>
+                  <li>Oversee market research to identify trends and strategies.</li>
+                  <li>Monitor brand consistency across channels and materials.</li>
+                </ul>
+              </article>
+              <article class="timeline-item">
+                <div class="meta"><div><strong>Studio Shodwe</strong><br />Marketing Manager & Specialist</div><div>2024 – 2025</div></div>
+                <ul>
+                  <li>Develop and maintain strong relationships with partners and vendors.</li>
+                  <li>Support marketing initiatives and maintain branding standards.</li>
+                </ul>
+              </article>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="title">Reference</div>
+            <div class="rule"></div>
+            <div class="references">
+              <div class="ref-card">
+                <div class="name">Estelle Darcy</div>
+                <div class="small">Wardiere Inc. / CTO</div>
+                <div class="small">Phone: 123-456-7890</div>
+                <div class="small">Email: hello@reallygreatsite.com</div>
+              </div>
+              <div class="ref-card">
+                <div class="name">Harper Richard</div>
+                <div class="small">Wardiere Inc. / CEO</div>
+                <div class="small">Phone: 123-456-7890</div>
+                <div class="small">Email: hello@reallygreatsite.com</div>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </section>
+  </body>
+  </html>
+
+
