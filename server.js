@@ -4,6 +4,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -43,7 +44,11 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' })); // Parsuj JSON z limitem rozmiaru
-app.use(express.static('.')); // Serwuj pliki statyczne (index.html, CSS, JS)
+
+// Serwuj pliki statyczne - używaj public jeśli istnieje, w przeciwnym razie bieżący katalog
+const publicDir = path.join(__dirname, 'public');
+const staticDir = fs.existsSync(publicDir) ? publicDir : '.';
+app.use(express.static(staticDir)); // Serwuj pliki statyczne (index.html, CSS, JS)
 
 // Credentials z zmiennych środowiskowych (BEZPIECZNE!)
 const credentials = {

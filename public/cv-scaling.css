@@ -1,0 +1,31 @@
+/* Wspólne style skalowania CV dla wszystkich motywów */
+/* Ten plik zawiera reguły odpowiedzialne za automatyczne dopasowanie CV do jednej strony A4 */
+/* Należy załadować ten plik PRZED plikiem CSS motywu (style.css lub style1.css) */
+
+:root {
+  /* Skalowanie zawartości (ustawiane przez cv-auto-fit.js) */
+  --content-scale: 1;
+}
+
+/* Pojedyncza strona A4 - ustawienia skalowania */
+/* Uwaga: --page-height jest definiowane w pliku CSS motywu (style.css/style1.css) */
+.page {
+  height: var(--page-height, 297mm); /* Fallback do 297mm jeśli zmienna nie jest zdefiniowana */
+  overflow: hidden; /* Ukryj wszystko co wychodzi poza stronę */
+  position: relative;
+}
+
+/* Struktura zawartości CV - przygotowanie do skalowania */
+.cv-columns {
+  transform-origin: top left; /* Dla skalowania z cv-auto-fit.js */
+}
+
+/* Ustawienia druku z zachowaniem skalowania */
+@media print {
+  .page {
+    height: var(--page-height, 297mm) !important; /* Dokładna wysokość A4 */
+    overflow: hidden !important; /* Ukryj wszystko co wychodzi poza stronę przy druku */
+  }
+  /* Transform scale działa przy druku, więc skalowanie będzie działać */
+}
+
