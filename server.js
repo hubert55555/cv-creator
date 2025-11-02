@@ -10,10 +10,38 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-// CORS - w produkcji ustaw origin na swoją domenę!
-// Dla lokalnego developmentu: app.use(cors())
-// Dla produkcji: app.use(cors({ origin: 'https://twoja-domena.pl' }))
-app.use(cors()); // Zezwól na żądania z frontendu (TODO: ogranicz w produkcji!)
+// CORS - konfiguracja dla localhost i Vercel
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3001',
+  // Vercel automatycznie ustawia VERCEL_URL i VERCEL_BRANCH_URL
+  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
+  process.env.VERCEL_BRANCH_URL ? `https://${process.env.VERCEL_BRANCH_URL}` : null,
+  // Możesz dodać własną domenę jako zmienną środowiskową
+  process.env.CUSTOM_DOMAIN ? `https://${process.env.CUSTOM_DOMAIN}` : null
+].filter(Boolean); // Usuń null/undefined wartości
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Pozwól na żądania bez origin (mobile apps, Postman, itp.)
+    if (!origin) return callback(null, true);
+    
+    // Jeśli origin jest w liście dozwolonych, pozwól
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      // W trybie deweloperskim na localhost, pozwól na wszystko
+      if (process.env.NODE_ENV !== 'production') {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    }
+  },
+  credentials: true
+}));
 app.use(express.json({ limit: '10mb' })); // Parsuj JSON z limitem rozmiaru
 app.use(express.static('.')); // Serwuj pliki statyczne (index.html, CSS, JS)
 
