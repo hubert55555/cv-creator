@@ -4,7 +4,6 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -45,10 +44,9 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' })); // Parsuj JSON z limitem rozmiaru
 
-// Serwuj pliki statyczne - używaj public jeśli istnieje, w przeciwnym razie bieżący katalog
+// Serwuj pliki statyczne z katalogu public (jedna lokalizacja dla localhost i Vercel)
 const publicDir = path.join(__dirname, 'public');
-const staticDir = fs.existsSync(publicDir) ? publicDir : '.';
-app.use(express.static(staticDir)); // Serwuj pliki statyczne (index.html, CSS, JS)
+app.use(express.static(publicDir)); // Serwuj pliki statyczne (index.html, CSS, JS)
 
 // Credentials z zmiennych środowiskowych (BEZPIECZNE!)
 const credentials = {
@@ -66,8 +64,14 @@ const credentials = {
 
 // Endpoint do generowania CV
 app.post('/api/generate-cv', async (req, res) => {
+  console.log('[API] Otrzymano żądanie do /api/generate-cv');
+  console.log('[API] Provider:', req.body?.provider);
+  console.log('[API] Fetch dostępny:', typeof fetch !== 'undefined');
+  
   try {
     const { provider, prompt, templateHtml, cvData } = req.body;
+    
+    console.log('[API] Sprawdzanie wymaganych parametrów...');
 
     // Walidacja
     if (!provider || !prompt || !templateHtml) {
@@ -85,9 +89,18 @@ app.post('/api/generate-cv', async (req, res) => {
 
     // Pobierz konfigurację providera
     const providerConfig = credentials[provider];
-    if (!providerConfig || !providerConfig.apiToken) {
+    if (!providerConfig) {
+      console.error(`[API] Nieznany provider: ${provider}`);
       return res.status(400).json({ 
-        error: `Token API dla ${provider} nie jest skonfigurowany. Sprawdź zmienne środowiskowe.` 
+        error: `Nieznany provider: ${provider}. Dostępne providery: gemini, huggingFace` 
+      });
+    }
+    
+    if (!providerConfig.apiToken) {
+      console.error(`[API] Brak tokenu dla providera: ${provider}`);
+      const envVarName = provider === 'gemini' ? 'GEMINI_API_TOKEN' : 'HUGGINGFACE_API_TOKEN';
+      return res.status(400).json({ 
+        error: `Token API dla ${provider} nie jest skonfigurowany. Sprawdź zmienną środowiskową: ${envVarName}` 
       });
     }
 
@@ -205,8 +218,11 @@ app.post('/api/generate-cv', async (req, res) => {
 
   } catch (error) {
     console.error('[API] Błąd:', error);
+    console.error('[API] Stack trace:', error.stack);
+    console.error('[API] Request body:', JSON.stringify(req.body).substring(0, 500)); // Pierwsze 500 znaków
     return res.status(500).json({ 
-      error: 'Wewnętrzny błąd serwera: ' + error.message 
+      error: 'Wewnętrzny błąd serwera: ' + error.message,
+      details: process.env.NODE_ENV !== 'production' ? error.stack : undefined
     });
   }
 });
@@ -216,18 +232,25 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'API działa poprawnie' });
 });
 
-// Uruchom serwer
-app.listen(PORT, () => {
-  console.log(`🚀 Serwer API działa na porcie ${PORT}`);
-  console.log(`📝 Frontend: http://localhost:${PORT}`);
-  console.log(`🔧 API: http://localhost:${PORT}/api/generate-cv`);
-  
-  // Sprawdź które providery są skonfigurowane
-  const configured = Object.keys(credentials).filter(p => credentials[p].apiToken);
-  if (configured.length > 0) {
-    console.log(`✅ Skonfigurowane providery: ${configured.join(', ')}`);
-  } else {
-    console.log(`⚠️  UWAGA: Żaden provider nie jest skonfigurowany! Sprawdź plik .env`);
-  }
-});
+// Eksport aplikacji dla Vercel (funkcja serverless)
+// Vercel automatycznie wykryje i użyje tego eksportu
+// Dla @vercel/node, eksportujemy app bezpośrednio
+module.exports = app;
+
+// Uruchom serwer lokalnie (tylko jeśli nie jesteśmy na Vercel)
+if (require.main === module && !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Serwer API działa na porcie ${PORT}`);
+    console.log(`📝 Frontend: http://localhost:${PORT}`);
+    console.log(`🔧 API: http://localhost:${PORT}/api/generate-cv`);
+    
+    // Sprawdź które providery są skonfigurowane
+    const configured = Object.keys(credentials).filter(p => credentials[p].apiToken);
+    if (configured.length > 0) {
+      console.log(`✅ Skonfigurowane providery: ${configured.join(', ')}`);
+    } else {
+      console.log(`⚠️  UWAGA: Żaden provider nie jest skonfigurowany! Sprawdź plik .env`);
+    }
+  });
+}
 
