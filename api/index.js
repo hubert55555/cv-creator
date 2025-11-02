@@ -45,7 +45,8 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' })); // Parsuj JSON z limitem rozmiaru
 
 // Serwuj pliki statyczne z katalogu public (jedna lokalizacja dla localhost i Vercel)
-const publicDir = path.join(__dirname, 'public');
+// __dirname wskazuje na api/, więc musimy wyjść o jeden poziom wyżej
+const publicDir = path.join(__dirname, '..', 'public');
 app.use(express.static(publicDir)); // Serwuj pliki statyczne (index.html, CSS, JS)
 
 // Credentials z zmiennych środowiskowych (BEZPIECZNE!)
