@@ -19,25 +19,40 @@ const allowedOrigins = [
   // Vercel automatycznie ustawia VERCEL_URL i VERCEL_BRANCH_URL
   process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
   process.env.VERCEL_BRANCH_URL ? `https://${process.env.VERCEL_BRANCH_URL}` : null,
+  // Główna domena projektu Vercel (cv-creator-roan.vercel.app)
+  'https://cv-creator-roan.vercel.app',
+  // Wszystkie możliwe domeny Vercel dla tego projektu
+  /^https:\/\/cv-creator.*\.vercel\.app$/,
   // Możesz dodać własną domenę jako zmienną środowiskową
   process.env.CUSTOM_DOMAIN ? `https://${process.env.CUSTOM_DOMAIN}` : null
-].filter(Boolean); // Usuń null/undefined wartości
+].filter(item => item !== null && item !== undefined); // Usuń tylko null/undefined wartości, zachowaj regex
 
 app.use(cors({
   origin: function (origin, callback) {
     // Pozwól na żądania bez origin (mobile apps, Postman, itp.)
     if (!origin) return callback(null, true);
     
-    // Jeśli origin jest w liście dozwolonych, pozwól
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    // Sprawdź czy origin jest w liście dozwolonych (string)
+    if (allowedOrigins.some(allowed => {
+      if (typeof allowed === 'string') {
+        return allowed === origin;
+      } else if (allowed instanceof RegExp) {
+        return allowed.test(origin);
+      }
+      return false;
+    })) {
+      callback(null, true);
+      return;
+    }
+    
+    // W trybie deweloperskim na localhost, pozwól na wszystko
+    if (process.env.NODE_ENV !== 'production') {
       callback(null, true);
     } else {
-      // W trybie deweloperskim na localhost, pozwól na wszystko
-      if (process.env.NODE_ENV !== 'production') {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
+      // W produkcji - loguj próby dostępu z nieznanych originów
+      console.log('[CORS] Odrzucono żądanie z origin:', origin);
+      console.log('[CORS] Dozwolone origins:', allowedOrigins.filter(o => typeof o === 'string'));
+      callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true
