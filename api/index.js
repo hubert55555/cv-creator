@@ -159,15 +159,16 @@ function loadHtmlFiles() {
   }
 }
 
-// Wczytaj pliki przy starcie - TO MUSI DZIAŁAĆ
+// Wczytaj pliki przy starcie - ale NIE FAIL jeśli nie uda się (dla buildu na Vercel)
 try {
   const loaded = loadHtmlFiles();
   if (!loaded) {
-    console.error('🚨 KRYTYCZNY BŁĄD: Pliki HTML nie zostały wczytane!');
+    console.warn('⚠️ UWAGA: Pliki HTML nie zostały wczytane podczas inicjalizacji.');
+    console.warn('⚠️ Będą wczytane przy pierwszym żądaniu.');
   }
 } catch (e) {
-  console.error('🚨 BŁĄD przy wczytywaniu plików HTML:', e);
-  console.error('Stack trace:', e.stack);
+  console.warn('⚠️ Nie udało się wczytać plików HTML podczas inicjalizacji:', e.message);
+  console.warn('⚠️ Pliki będą wczytane przy pierwszym żądaniu.');
 }
 
 // Credentials z zmiennych środowiskowych (BEZPIECZNE!)
@@ -362,11 +363,19 @@ app.get('/api/health', (req, res) => {
 // FORM.HTML - PIERWSZY, BEZPOŚREDNIO, BEZ ŻADNYCH WARUNKÓW
 app.get('/form.html', (req, res) => {
   console.log('🔥 OBSŁUGUJĘ /form.html');
+  
+  // Lazy loading - spróbuj wczytać jeśli nie ma w cache
+  if (!cachedHtmlFiles['form.html']) {
+    console.log('⚠️ form.html nie w cache, próbuję wczytać...');
+    loadHtmlFiles();
+  }
+  
   if (cachedHtmlFiles['form.html']) {
     console.log('✅ Wysyłam form.html z cache');
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.send(cachedHtmlFiles['form.html']);
   }
+  
   console.error('❌ BRAK form.html w cache!');
   res.status(500).send('<h1>Błąd: form.html nie został wczytany do pamięci</h1>');
 });
@@ -374,6 +383,13 @@ app.get('/form.html', (req, res) => {
 // INDEX.HTML - TYLKO DLA /index.html i /
 app.get('/index.html', (req, res) => {
   console.log('🔥 OBSŁUGUJĘ /index.html');
+  
+  // Lazy loading
+  if (!cachedHtmlFiles['index.html']) {
+    console.log('⚠️ index.html nie w cache, próbuję wczytać...');
+    loadHtmlFiles();
+  }
+  
   if (cachedHtmlFiles['index.html']) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.send(cachedHtmlFiles['index.html']);
@@ -383,6 +399,13 @@ app.get('/index.html', (req, res) => {
 
 app.get('/', (req, res) => {
   console.log('🔥 OBSŁUGUJĘ /');
+  
+  // Lazy loading
+  if (!cachedHtmlFiles['index.html']) {
+    console.log('⚠️ index.html nie w cache, próbuję wczytać...');
+    loadHtmlFiles();
+  }
+  
   if (cachedHtmlFiles['index.html']) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.send(cachedHtmlFiles['index.html']);
