@@ -109,6 +109,49 @@ console.log('__dirname:', __dirname);
 console.log('process.cwd():', process.cwd());
 console.log('VERCEL:', process.env.VERCEL);
 
+// EPICKIE ROZWIĄZANIE: Wczytaj pliki HTML do pamięci przy starcie
+// To gwarantuje, że pliki będą dostępne nawet jeśli ścieżki są nieprawidłowe
+let cachedHtmlFiles = {};
+
+function loadHtmlFiles() {
+  const fs = require('fs');
+  const possiblePaths = [
+    path.resolve(__dirname, '..', 'public'),
+    path.resolve(process.cwd(), 'public'),
+    path.resolve(process.cwd()),
+    '/var/task/public',
+    '/var/task',
+  ];
+  
+  for (const basePath of possiblePaths) {
+    try {
+      const formPath = path.join(basePath, 'form.html');
+      const indexPath = path.join(basePath, 'index.html');
+      
+      if (fs.existsSync && fs.existsSync(formPath) && fs.existsSync(indexPath)) {
+        console.log('✅ Wczytuję pliki HTML z:', basePath);
+        cachedHtmlFiles['form.html'] = fs.readFileSync(formPath, 'utf8');
+        cachedHtmlFiles['index.html'] = fs.readFileSync(indexPath, 'utf8');
+        publicDir = basePath; // Zaktualizuj publicDir
+        console.log('✅ Pliki HTML wczytane do pamięci');
+        return true;
+      }
+    } catch (e) {
+      // Kontynuuj próbę następnej ścieżki
+    }
+  }
+  
+  console.warn('⚠️ Nie udało się wczytać plików HTML do pamięci');
+  return false;
+}
+
+// Wczytaj pliki przy starcie
+try {
+  loadHtmlFiles();
+} catch (e) {
+  console.error('Błąd przy wczytywaniu plików HTML:', e);
+}
+
 // Credentials z zmiennych środowiskowych (BEZPIECZNE!)
 const credentials = {
   gemini: {
@@ -298,22 +341,38 @@ app.get('/api/health', (req, res) => {
 // Na Vercel, pliki z public są kopiowane do build output, ale routing przez Express może być potrzebny
 // gdy używasz rewrites lub gdy pliki nie są dostępne bezpośrednio
 
-// Routing dla konkretnych plików HTML PRZED express.static
+// EPICKIE ROZWIĄZANIE: Routing dla plików HTML - najpierw z cache, potem z dysku
 app.get('/form.html', (req, res) => {
+  // Jeśli mamy plik w cache, użyj go (NAJLEPSZE - zawsze działa)
+  if (cachedHtmlFiles['form.html']) {
+    console.log('✅ Serwuję form.html z cache');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.send(cachedHtmlFiles['form.html']);
+  }
+  
+  // Fallback: spróbuj z dysku
   res.sendFile('form.html', { root: publicDir }, (err) => {
     if (err) {
-      console.error('Błąd przy wysyłaniu form.html:', err);
+      console.error('❌ Błąd przy wysyłaniu form.html:', err);
       console.error('publicDir:', publicDir);
-      res.status(404).send('Nie znaleziono pliku form.html');
+      res.status(404).send('<h1>404 - Nie znaleziono form.html</h1><p>Sprawdź logi serwera.</p>');
     }
   });
 });
 
 app.get('/index.html', (req, res) => {
+  // Jeśli mamy plik w cache, użyj go
+  if (cachedHtmlFiles['index.html']) {
+    console.log('✅ Serwuję index.html z cache');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.send(cachedHtmlFiles['index.html']);
+  }
+  
+  // Fallback: spróbuj z dysku
   res.sendFile('index.html', { root: publicDir }, (err) => {
     if (err) {
-      console.error('Błąd przy wysyłaniu index.html:', err);
-      res.status(404).send('Nie znaleziono pliku index.html');
+      console.error('❌ Błąd przy wysyłaniu index.html:', err);
+      res.status(404).send('<h1>404 - Nie znaleziono index.html</h1>');
     }
   });
 });
@@ -328,10 +387,17 @@ app.use(express.static(publicDir, {
 
 // Fallback do index.html TYLKO dla root path (nie dla innych ścieżek)
 app.get('/', (req, res) => {
+  // Jeśli mamy plik w cache, użyj go
+  if (cachedHtmlFiles['index.html']) {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.send(cachedHtmlFiles['index.html']);
+  }
+  
+  // Fallback: spróbuj z dysku
   res.sendFile('index.html', { root: publicDir }, (err) => {
     if (err) {
-      console.error('Błąd przy wysyłaniu index.html z root:', err);
-      res.status(404).send('Nie znaleziono pliku index.html');
+      console.error('❌ Błąd przy wysyłaniu index.html z root:', err);
+      res.status(404).send('<h1>404 - Nie znaleziono index.html</h1>');
     }
   });
 });
