@@ -64,26 +64,50 @@ app.use(express.json({ limit: '10mb' })); // Parsuj JSON z limitem rozmiaru
 // Na Vercel może być inna struktura, więc sprawdzamy różne możliwości
 let publicDir = path.resolve(__dirname, '..', 'public');
 
+// Na Vercel, pliki mogą być w różnych lokalizacjach
 // Sprawdź czy katalog istnieje (tylko lokalnie, na Vercel może nie być fs dostępny)
 try {
   const fs = require('fs');
-  if (!fs.existsSync(publicDir)) {
-    // Spróbuj alternatywnej ścieżki (na Vercel może być inaczej)
-    publicDir = path.resolve(process.cwd(), 'public');
-    if (!fs.existsSync(publicDir)) {
-      // Ostatnia próba - może pliki są w root
-      publicDir = path.resolve(process.cwd());
-      console.warn('Ostrzeżenie: Używam process.cwd() jako publicDir:', publicDir);
+  
+  // Na Vercel, spróbuj różnych ścieżek w kolejności
+  const possiblePaths = [
+    path.resolve(__dirname, '..', 'public'),
+    path.resolve(process.cwd(), 'public'),
+    path.resolve(process.cwd()),
+    // Na Vercel pliki mogą być w .vercel/output/static lub w root deploymentu
+    path.resolve('/var/task/public'),
+    path.resolve('/var/task'),
+  ];
+  
+  for (const possiblePath of possiblePaths) {
+    if (fs.existsSync && fs.existsSync(possiblePath)) {
+      // Sprawdź czy to jest katalog public lub zawiera pliki HTML
+      try {
+        const files = fs.readdirSync(possiblePath);
+        if (files.includes('form.html') || files.includes('index.html')) {
+          publicDir = possiblePath;
+          console.log('Znaleziono publicDir:', publicDir);
+          break;
+        }
+      } catch (e) {
+        // Kontynuuj sprawdzanie
+      }
     }
+  }
+  
+  // Jeśli nadal nie znaleziono, użyj domyślnej
+  if (!fs.existsSync || !fs.existsSync(publicDir)) {
+    console.warn('Nie znaleziono katalogu public, używam domyślnej ścieżki:', publicDir);
   }
 } catch (e) {
   // Na Vercel fs może nie być dostępny, użyj domyślnej ścieżki
-  console.log('Używam domyślnej ścieżki publicDir:', publicDir);
+  console.log('Używam domyślnej ścieżki publicDir (błąd fs):', publicDir);
 }
 
 console.log('Public directory:', publicDir);
 console.log('__dirname:', __dirname);
 console.log('process.cwd():', process.cwd());
+console.log('VERCEL:', process.env.VERCEL);
 
 // Credentials z zmiennych środowiskowych (BEZPIECZNE!)
 const credentials = {
@@ -280,40 +304,56 @@ app.use(express.static(publicDir, {
 
 // Fallback routing dla plików statycznych (na Vercel)
 // To zapewnia, że pliki jak form.html są dostępne nawet jeśli express.static nie zadziała
-// Używamy path.resolve dla absolutnych ścieżek
 app.get('/form.html', (req, res) => {
-  const filePath = path.resolve(publicDir, 'form.html');
-  console.log('Wysyłanie form.html z:', filePath);
-  res.sendFile(filePath, (err) => {
+  // Użyj opcji root zamiast absolutnej ścieżki - działa lepiej na Vercel
+  res.sendFile('form.html', { root: publicDir }, (err) => {
     if (err) {
       console.error('Błąd przy wysyłaniu form.html:', err);
-      console.error('Szukany plik:', filePath);
-      res.status(404).send('Nie znaleziono pliku form.html. Ścieżka: ' + filePath);
+      console.error('Szukany plik:', path.join(publicDir, 'form.html'));
+      console.error('publicDir:', publicDir);
+      // Spróbuj alternatywnych ścieżek
+      const altPaths = [
+        path.resolve(process.cwd(), 'public', 'form.html'),
+        path.resolve(__dirname, '..', 'public', 'form.html'),
+        path.resolve(process.cwd(), 'form.html')
+      ];
+      
+      let found = false;
+      for (const altPath of altPaths) {
+        try {
+          const fs = require('fs');
+          if (fs.existsSync && fs.existsSync(altPath)) {
+            res.sendFile(altPath);
+            found = true;
+            break;
+          }
+        } catch (e) {
+          // Kontynuuj próbę następnej ścieżki
+        }
+      }
+      
+      if (!found) {
+        res.status(404).send('Nie znaleziono pliku form.html');
+      }
     }
   });
 });
 
 app.get('/index.html', (req, res) => {
-  const filePath = path.resolve(publicDir, 'index.html');
-  console.log('Wysyłanie index.html z:', filePath);
-  res.sendFile(filePath, (err) => {
+  res.sendFile('index.html', { root: publicDir }, (err) => {
     if (err) {
       console.error('Błąd przy wysyłaniu index.html:', err);
-      console.error('Szukany plik:', filePath);
-      res.status(404).send('Nie znaleziono pliku index.html. Ścieżka: ' + filePath);
+      res.status(404).send('Nie znaleziono pliku index.html');
     }
   });
 });
 
 // Fallback do index.html dla root path
 app.get('/', (req, res) => {
-  const filePath = path.resolve(publicDir, 'index.html');
-  console.log('Wysyłanie index.html z root z:', filePath);
-  res.sendFile(filePath, (err) => {
+  res.sendFile('index.html', { root: publicDir }, (err) => {
     if (err) {
       console.error('Błąd przy wysyłaniu index.html z root:', err);
-      console.error('Szukany plik:', filePath);
-      res.status(404).send('Nie znaleziono pliku index.html. Ścieżka: ' + filePath);
+      res.status(404).send('Nie znaleziono pliku index.html');
     }
   });
 });
