@@ -16,7 +16,7 @@ const allowedOrigins = [
   'http://localhost:3001',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:3001',
-  // Vercel automatycznie ustawia VERCEL_URL i VERCEL_BRANCH_URL
+  // Vercel automatycznjie ustawia VERCEL_URL i VERCEL_BRANCH_URL
   process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
   process.env.VERCEL_BRANCH_URL ? `https://${process.env.VERCEL_BRANCH_URL}` : null,
   // Główna domena projektu Vercel (cv-creator-roan.vercel.app)
@@ -136,28 +136,51 @@ function loadHtmlFiles() {
     console.log('  process.cwd():', process.cwd());
     console.log('  VERCEL:', process.env.VERCEL);
     
+    let foundAny = false;
+    
     for (const basePath of possiblePaths) {
       try {
         const formPath = path.join(basePath, 'form.html');
         const indexPath = path.join(basePath, 'index.html');
         
-        console.log('  Sprawdzam:', formPath);
+        console.log('  Sprawdzam:', basePath);
         
-        if (fs.existsSync && fs.existsSync(formPath) && fs.existsSync(indexPath)) {
-          console.log('✅ ZNALEZIONO! Wczytuję pliki HTML z:', basePath);
-          cachedHtmlFiles['form.html'] = fs.readFileSync(formPath, 'utf8');
-          cachedHtmlFiles['index.html'] = fs.readFileSync(indexPath, 'utf8');
-          publicDir = basePath;
-          console.log('✅ ✅ ✅ Pliki HTML wczytane do pamięci!');
+        // Ładuj pliki NIEZALEŻNIE - jeśli jeden istnieje, wczytaj go
+        if (fs.existsSync && fs.existsSync(formPath)) {
+          if (!cachedHtmlFiles['form.html']) {
+            console.log('  ✅ Znaleziono form.html w:', formPath);
+            cachedHtmlFiles['form.html'] = fs.readFileSync(formPath, 'utf8');
+            publicDir = basePath;
+            foundAny = true;
+          }
+        }
+        
+        if (fs.existsSync && fs.existsSync(indexPath)) {
+          if (!cachedHtmlFiles['index.html']) {
+            console.log('  ✅ Znaleziono index.html w:', indexPath);
+            cachedHtmlFiles['index.html'] = fs.readFileSync(indexPath, 'utf8');
+            publicDir = basePath;
+            foundAny = true;
+          }
+        }
+        
+        // Jeśli znaleźliśmy oba, możemy przerwać
+        if (cachedHtmlFiles['form.html'] && cachedHtmlFiles['index.html']) {
+          console.log('✅ ✅ ✅ Oba pliki HTML wczytane do pamięci!');
           console.log('  form.html rozmiar:', cachedHtmlFiles['form.html']?.length || 0, 'znaków');
           console.log('  index.html rozmiar:', cachedHtmlFiles['index.html']?.length || 0, 'znaków');
           return true;
-        } else {
-          console.log('  ❌ Brak plików w:', basePath);
         }
       } catch (e) {
         console.log('  ❌ Błąd przy sprawdzaniu:', basePath, e.message);
       }
+    }
+    
+    if (foundAny) {
+      console.log('✅ Wczytano niektóre pliki HTML:');
+      if (cachedHtmlFiles['form.html']) console.log('  ✅ form.html:', cachedHtmlFiles['form.html'].length, 'znaków');
+      if (cachedHtmlFiles['index.html']) console.log('  ✅ index.html:', cachedHtmlFiles['index.html'].length, 'znaków');
+      return true;
     }
     
     // Debug - lista wszystkich plików w różnych lokalizacjach
