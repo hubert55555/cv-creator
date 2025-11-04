@@ -1,4 +1,4 @@
-// Backend API Server dla Generator CV
+//. Backend API Server dla Generator CV
 // Tokeny są bezpieczne - tylko na serwerze!
 
 const express = require('express');
