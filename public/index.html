@@ -3,1504 +3,620 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generator CV z AI</title>
-    <script src="config.js"></script>
+    <title>CV Creator - Generator CV z AI</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .form-container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #555;
-        }
-        input[type="text"], input[type="email"], input[type="tel"], textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
+        * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
-        textarea {
-            height: 100px;
-            resize: vertical;
+
+        :root {
+            --primary-color: #007bff;
+            --primary-dark: #0056b3;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --gradient-start: #667eea;
+            --gradient-end: #764ba2;
+            --text-dark: #212529;
+            --text-light: #6c757d;
+            --bg-light: #f8f9fa;
+            --white: #ffffff;
         }
-        .dynamic-section {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 5px;
-            background-color: #f9f9f9;
+
+        html {
+            scroll-behavior: smooth;
         }
-        .add-btn, .remove-btn {
-            background-color: #007bff;
-            color: white;
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, var(--bg-light) 0%, #e9ecef 100%);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: var(--white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .header-btn {
+            padding: 0.6rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
             border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
-            margin: 5px;
-        }
-        .remove-btn {
-            background-color: #dc3545;
-        }
-        .add-btn:hover, .remove-btn:hover {
-            opacity: 0.8;
-        }
-        .section-title {
-            color: #333;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 5px;
-            margin-top: 30px;
-        }
-        .year-input {
-            width: 100px;
+            transition: all 0.3s ease;
+            text-decoration: none;
             display: inline-block;
         }
-        .submit-btn {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 18px;
-            width: 100%;
-            margin-top: 20px;
+
+        .header-btn-primary {
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: var(--white);
         }
-        .submit-btn:hover {
-            background-color: #218838;
+
+        .header-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .header-btn-secondary {
+            background: var(--bg-light);
+            color: var(--text-dark);
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .header-btn-secondary:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 5rem 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: var(--text-light);
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+        }
+
+        .hero-cta {
+            margin-top: 2rem;
+        }
+
+        .hero-cta .btn {
+            font-size: 1.2rem;
+            padding: 1.2rem 2.5rem;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .hero-cta .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .scroll-indicator {
+            margin-top: 3rem;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 4rem 2rem;
+            background: var(--white);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: 12px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .feature-card p {
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 5rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: var(--white);
+        }
+
+        .cta-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-section p {
+            font-size: 1.2rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.95;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--white);
+            color: var(--gradient-start);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: var(--white);
+            border: 2px solid var(--white);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        /* About Section */
+        .about-section {
+            padding: 4rem 2rem;
+            background: var(--white);
+        }
+
+        .about-section h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--text-dark);
+        }
+
+        .authors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .author-card {
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .author-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .author-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: var(--white);
+            font-weight: 700;
+        }
+
+        .author-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .author-card p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text-dark);
+            color: var(--white);
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .cta-section h2 {
+                font-size: 2rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .header-buttons {
+                gap: 0.5rem;
+            }
+
+            .header-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .hero-cta .btn {
+                font-size: 1rem;
+                padding: 1rem 2rem;
+            }
+
+            .scroll-indicator {
+                font-size: 0.8rem;
+                margin-top: 2rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feature-card, .author-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Scroll reveal animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Section spacing */
+        section {
+            scroll-margin-top: 80px;
         }
     </style>
 </head>
 <body>
-    <div class="form-container">
-        <h1>Formularz CV</h1>
-        
-        <!-- Przycisk otwierania edytora -->
-        <div style="margin-bottom: 20px; padding: 15px; background-color: #fff3cd; border-radius: 5px; border: 1px solid #ffc107;">
-            <button type="button" onclick="openEmptyEditor()" style="padding: 12px 24px; background-color: #ffc107; color: #000; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%;">
-                ✏️ Otwórz edytor CV (bez generowania)
-            </button>
-            <p style="margin: 10px 0 0 0; font-size: 14px; color: #856404; text-align: center;">
-                Otwórz edytor CV, aby wczytać i edytować zapisane wcześniej CV z localStorage
+    <header>
+        <nav class="container">
+            <div class="logo">📄 CV Creator</div>
+            <div class="header-buttons">
+                <a href="form.html" class="header-btn header-btn-primary">📝 Formularz</a>
+                <button onclick="openEditor()" class="header-btn header-btn-secondary">✏️ Edytor</button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1>Twórz Profesjonalne CV z Pomocą AI</h1>
+            <p>
+                CV Creator to nowoczesne narzędzie wykorzystujące sztuczną inteligencję do generowania 
+                profesjonalnych życiorysów. Wypełnij formularz, a AI stworzy dla Ciebie gotowe CV 
+                dostosowane do Twojego profilu zawodowego.
             </p>
+            <div class="hero-cta">
+                <a href="#cta-start" class="btn btn-primary" style="display: inline-block;">
+                    🚀 Zacznij Teraz
+                </a>
+            </div>
+            <div class="scroll-indicator">
+                <div>↓ Przewiń w dół, aby dowiedzieć się więcej</div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features fade-in">
+            <div class="container">
+                <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 1rem; color: var(--text-dark);">
+                    Dlaczego CV Creator?
+                </h2>
+                <p style="text-align: center; color: var(--text-light); font-size: 1.1rem; margin-bottom: 2rem;">
+                    Wszystko czego potrzebujesz do stworzenia idealnego CV
+                </p>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🤖</div>
+                        <h3>Generowanie z AI</h3>
+                        <p>
+                            Wykorzystaj moc sztucznej inteligencji do automatycznego tworzenia 
+                            profesjonalnych CV na podstawie Twoich danych.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">✏️</div>
+                        <h3>Edycja Inline</h3>
+                        <p>
+                            Edytuj CV bezpośrednio w przeglądarce. Podwójne kliknięcie pozwala 
+                            na szybką modyfikację każdego elementu.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎨</div>
+                        <h3>Różne Motywy</h3>
+                        <p>
+                            Wybierz spośród wielu profesjonalnych szablonów CV, 
+                            które pasują do Twojego stylu i branży.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📄</div>
+                        <h3>Format A4</h3>
+                        <p>
+                            CV automatycznie dopasowuje się do formatu A4, 
+                            gotowe do wydruku lub eksportu do PDF.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💾</div>
+                        <h3>Zapisywanie</h3>
+                        <p>
+                            Zapisuj swoje CV lokalnie w przeglądarce i wracaj 
+                            do edycji w dowolnym momencie.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Szybkie i Proste</h3>
+                        <p>
+                            Intuicyjny interfejs sprawia, że stworzenie CV 
+                            zajmuje tylko kilka minut.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section id="cta-start" class="cta-section fade-in">
+            <div class="container">
+                <h2>Zacznij Tworzyć Swoje CV</h2>
+                <p>Wybierz sposób, który Ci odpowiada</p>
+                <div class="cta-buttons">
+                    <a href="form.html" class="btn btn-primary">
+                        📝 Wypełnij Formularz
+                    </a>
+                    <button onclick="openEditor()" class="btn btn-secondary">
+                        ✏️ Otwórz Edytor
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Authors Section -->
+        <section class="about-section fade-in">
+            <div class="container">
+                <h2>O Autorach</h2>
+                <div class="authors-grid">
+                    <div class="author-card">
+                        <div class="author-avatar">F</div>
+                        <h3>Filip</h3>
+                        <p>Współtwórca projektu</p>
+                    </div>
+                    <div class="author-card">
+                        <div class="author-avatar">H</div>
+                        <h3>Hubert</h3>
+                        <p>Współtwórca projektu</p>
+                    </div>
+                </div>
+                <p style="text-align: center; margin-top: 3rem; color: var(--text-light); max-width: 600px; margin-left: auto; margin-right: auto;">
+                    CV Creator został stworzony jako projekt edukacyjny, łączący nowoczesne technologie 
+                    webowe z możliwościami sztucznej inteligencji. Celem projektu jest ułatwienie 
+                    procesu tworzenia profesjonalnych dokumentów aplikacyjnych.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 CV Creator. Wszystkie prawa zastrzeżone.</p>
         </div>
-        
-        <!-- Sekcja ustawień generatora -->
-        <div style="margin-bottom: 30px; padding: 20px; background-color: #f9f9f9; border-radius: 5px; border: 1px solid #ddd;">
-            <h2 class="section-title" style="margin-top: 0;">Ustawienia generatora</h2>
-            <div class="form-group">
-                <label for="theme-select" style="font-weight: bold; color: #555; margin-bottom: 10px; display: block;">Motyw CV:</label>
-                <select id="theme-select" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box; margin-bottom: 20px;">
-                    <option value="">Ładowanie...</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="prompt-select" style="font-weight: bold; color: #555; margin-bottom: 10px; display: block;">Tryb generowania:</label>
-                <select id="prompt-select" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; box-sizing: border-box;">
-                    <option value="">Ładowanie...</option>
-                </select>
-            </div>
-        </div>
-        
-        <!-- Sekcja importu/eksportu -->
-        <div style="margin-bottom: 30px; padding: 20px; background-color: #e7f3ff; border-radius: 5px; border: 1px solid #007bff;">
-            <h3 style="margin-top: 0; color: #333;">Zapisz/Wczytaj dane</h3>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button type="button" onclick="downloadJSON()" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">💾 Zapisz formularz (JSON)</button>
-                <label style="padding: 10px 20px; background-color: #28a745; color: white; border-radius: 5px; cursor: pointer; display: inline-block;">
-                    📁 Wczytaj formularz (JSON)
-                    <input type="file" id="jsonFileInput" accept=".json" style="display: none;" onchange="loadFromJSONFile(event)">
-                </label>
-            </div>
-        </div>
-        
-        <form id="cvForm">
-            <!-- Podstawowe dane -->
-            <h2 class="section-title">Dane osobowe</h2>
-            
-            <div class="form-group">
-                <label for="imie">Imię:</label>
-                <input type="text" id="imie" name="imie">
-            </div>
-            
-            <div class="form-group">
-                <label for="nazwisko">Nazwisko:</label>
-                <input type="text" id="nazwisko" name="nazwisko">
-            </div>
-            
-            <div class="form-group">
-                <label for="telefon">Numer telefonu:</label>
-                <input type="tel" id="telefon" name="telefon">
-            </div>
-            
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email">
-            </div>
-            
-            <div class="form-group">
-                <label for="adres">Adres:</label>
-                <input type="text" id="adres" name="adres">
-            </div>
-            
-            <!-- O mnie -->
-            <h2 class="section-title">O mnie</h2>
-            <div class="form-group">
-                <label for="o-mnie">Krótko o mnie:</label>
-                <textarea id="o-mnie" name="o-mnie" placeholder="Napisz kilka zdań o sobie..."></textarea>
-            </div>
-            
-            <!-- Edukacja -->
-            <h2 class="section-title">Edukacja</h2>
-            <div id="szkoly-container">
-                <div class="dynamic-section">
-                    <div class="form-group">
-                        <label>Nazwa szkoły:</label>
-                        <input type="text" name="szkola[]">
-                    </div>
-                    <div class="form-group">
-                        <label>Lata nauki:</label>
-                        <input type="text" name="lata-szkola[]" placeholder="np. 2018-2022">
-                    </div>
-                </div>
-            </div>
-            <button type="button" class="add-btn" onclick="addSchool()">+ Dodaj szkołę</button>
-            
-            <!-- Umiejętności -->
-            <h2 class="section-title">Umiejętności</h2>
-            <div id="umiejetnosci-container">
-                <div class="dynamic-section">
-                    <div class="form-group">
-                        <label>Umiejętność:</label>
-                        <input type="text" name="umiejetnosc[]" placeholder="np. JavaScript, Photoshop">
-                    </div>
-                </div>
-            </div>
-            <button type="button" class="add-btn" onclick="addSkill()">+ Dodaj umiejętność</button>
-            
-            <!-- Języki -->
-            <h2 class="section-title">Języki</h2>
-            <div id="jezyki-container">
-                <div class="dynamic-section">
-                    <div class="form-group">
-                        <label>Język:</label>
-                        <input type="text" name="jezyk[]" placeholder="np. Angielski">
-                    </div>
-                    <div class="form-group">
-                        <label>Poziom:</label>
-                        <input type="text" name="poziom-jezyk[]" placeholder="np. B2, Native">
-                    </div>
-                </div>
-            </div>
-            <button type="button" class="add-btn" onclick="addLanguage()">+ Dodaj język</button>
-            
-            <!-- Doświadczenie zawodowe -->
-            <h2 class="section-title">Doświadczenie zawodowe</h2>
-            <div id="doswiadczenie-container">
-                <div class="dynamic-section">
-                    <div class="form-group">
-                        <label>Stanowisko:</label>
-                        <input type="text" name="stanowisko[]">
-                    </div>
-                    <div class="form-group">
-                        <label>Firma:</label>
-                        <input type="text" name="firma[]">
-                    </div>
-                    <div class="form-group">
-                        <label>Lata pracy:</label>
-                        <input type="text" name="lata-praca[]" placeholder="np. 2020-2023">
-                    </div>
-                    <div class="form-group">
-                        <label>Opis obowiązków:</label>
-                        <textarea name="obowiazki[]" placeholder="Opisz co robiłeś w tej pracy..."></textarea>
-                    </div>
-                </div>
-            </div>
-            <button type="button" class="add-btn" onclick="addExperience()">+ Dodaj doświadczenie</button>
-            
-            <!-- Referencje/Projekty -->
-            <h2 class="section-title">Referencje / Projekty osobiste</h2>
-            <div id="referencje-container">
-                <div class="dynamic-section">
-                    <div class="form-group">
-                        <label>Tytuł projektu/referencji:</label>
-                        <input type="text" name="tytul-projektu[]">
-                    </div>
-                    <div class="form-group">
-                        <label>Opis:</label>
-                        <textarea name="opis-projektu[]" placeholder="Opisz projekt lub referencję..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Link (opcjonalnie):</label>
-                        <input type="text" name="link-projektu[]" placeholder="https://...">
-                    </div>
-                </div>
-            </div>
-            <button type="button" class="add-btn" onclick="addReference()">+ Dodaj referencję/projekt</button>
-            
-            <button type="submit" class="submit-btn">Generuj CV</button>
-        </form>
-        
-        
-        <!-- Sekcja odpowiedzi AI -->
-        <div id="ai-response" style="display: none; margin-top: 30px; padding: 20px; background-color: #f0f8ff; border-radius: 5px; border: 1px solid #007bff;">
-            <h3>Wygenerowane CV:</h3>
-            <div id="ai-response-content" style="background-color: #fff; padding: 15px; border-radius: 5px; white-space: pre-wrap; font-family: monospace; border: 1px solid #ddd; min-height: 100px;">
-                Przetwarzanie...
-            </div>
-            <div id="ai-response-actions" style="display: none; margin-top: 15px; gap: 10px; flex-wrap: wrap;">
-                <button type="button" onclick="openGeneratedCV()" style="padding: 12px 24px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold;">
-                    🚀 Otwórz w nowej karcie
-                </button>
-            </div>
-        </div>
-    </div>
+    </footer>
 
     <script>
-        // Funkcje do dodawania dynamicznych sekcji
-        function addSchool() {
-            const container = document.getElementById('szkoly-container');
-            const newSection = document.createElement('div');
-            newSection.className = 'dynamic-section';
-            newSection.innerHTML = `
-                <div class="form-group">
-                    <label>Nazwa szkoły:</label>
-                    <input type="text" name="szkola[]">
-                </div>
-                <div class="form-group">
-                    <label>Lata nauki:</label>
-                    <input type="text" name="lata-szkola[]" placeholder="np. 2018-2022">
-                </div>
-                <button type="button" class="remove-btn" onclick="removeSection(this)">Usuń</button>
-            `;
-            container.appendChild(newSection);
-        }
-
-        function addSkill() {
-            const container = document.getElementById('umiejetnosci-container');
-            const newSection = document.createElement('div');
-            newSection.className = 'dynamic-section';
-            newSection.innerHTML = `
-                <div class="form-group">
-                    <label>Umiejętność:</label>
-                    <input type="text" name="umiejetnosc[]" placeholder="np. JavaScript, Photoshop">
-                </div>
-                <button type="button" class="remove-btn" onclick="removeSection(this)">Usuń</button>
-            `;
-            container.appendChild(newSection);
-        }
-
-        function addLanguage() {
-            const container = document.getElementById('jezyki-container');
-            const newSection = document.createElement('div');
-            newSection.className = 'dynamic-section';
-            newSection.innerHTML = `
-                <div class="form-group">
-                    <label>Język:</label>
-                    <input type="text" name="jezyk[]" placeholder="np. Angielski">
-                </div>
-                <div class="form-group">
-                    <label>Poziom:</label>
-                    <input type="text" name="poziom-jezyk[]" placeholder="np. B2, Native">
-                </div>
-                <button type="button" class="remove-btn" onclick="removeSection(this)">Usuń</button>
-            `;
-            container.appendChild(newSection);
-        }
-
-        function addExperience() {
-            const container = document.getElementById('doswiadczenie-container');
-            const newSection = document.createElement('div');
-            newSection.className = 'dynamic-section';
-            newSection.innerHTML = `
-                <div class="form-group">
-                    <label>Stanowisko:</label>
-                    <input type="text" name="stanowisko[]">
-                </div>
-                <div class="form-group">
-                    <label>Firma:</label>
-                    <input type="text" name="firma[]">
-                </div>
-                <div class="form-group">
-                    <label>Lata pracy:</label>
-                    <input type="text" name="lata-praca[]" placeholder="np. 2020-2023">
-                </div>
-                <div class="form-group">
-                    <label>Opis obowiązków:</label>
-                    <textarea name="obowiazki[]" placeholder="Opisz co robiłeś w tej pracy..."></textarea>
-                </div>
-                <button type="button" class="remove-btn" onclick="removeSection(this)">Usuń</button>
-            `;
-            container.appendChild(newSection);
-        }
-
-        function addReference() {
-            const container = document.getElementById('referencje-container');
-            const newSection = document.createElement('div');
-            newSection.className = 'dynamic-section';
-            newSection.innerHTML = `
-                <div class="form-group">
-                    <label>Tytuł projektu/referencji:</label>
-                    <input type="text" name="tytul-projektu[]">
-                </div>
-                <div class="form-group">
-                    <label>Opis:</label>
-                    <textarea name="opis-projektu[]" placeholder="Opisz projekt lub referencję..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Link (opcjonalnie):</label>
-                    <input type="text" name="link-projektu[]" placeholder="https://...">
-                </div>
-                <button type="button" class="remove-btn" onclick="removeSection(this)">Usuń</button>
-            `;
-            container.appendChild(newSection);
-        }
-
-        function removeSection(button) {
-            button.parentElement.remove();
-        }
-
-        // Funkcja zbierająca dane w formacie JSON
-        function collectFormData() {
-            const formData = {
-                daneOsobowe: {
-                    imie: document.getElementById('imie').value,
-                    nazwisko: document.getElementById('nazwisko').value,
-                    telefon: document.getElementById('telefon').value,
-                    email: document.getElementById('email').value,
-                    adres: document.getElementById('adres').value
-                },
-                oMnie: document.getElementById('o-mnie').value,
-                edukacja: [],
-                umiejetnosci: [],
-                jezyki: [],
-                doswiadczenie: [],
-                referencje: []
-            };
-
-            // Zbieranie danych z edukacji
-            const szkoly = document.querySelectorAll('input[name="szkola[]"]');
-            const lataSzkola = document.querySelectorAll('input[name="lata-szkola[]"]');
-            for (let i = 0; i < szkoly.length; i++) {
-                if (szkoly[i].value.trim() || lataSzkola[i].value.trim()) {
-                    formData.edukacja.push({
-                        szkola: szkoly[i].value,
-                        lata: lataSzkola[i].value
-                    });
-                }
-            }
-
-            // Zbieranie umiejętności
-            const umiejetnosci = document.querySelectorAll('input[name="umiejetnosc[]"]');
-            umiejetnosci.forEach(input => {
-                if (input.value.trim()) {
-                    formData.umiejetnosci.push(input.value);
-                }
-            });
-
-            // Zbieranie języków
-            const jezyki = document.querySelectorAll('input[name="jezyk[]"]');
-            const poziomy = document.querySelectorAll('input[name="poziom-jezyk[]"]');
-            for (let i = 0; i < jezyki.length; i++) {
-                if (jezyki[i].value.trim() || poziomy[i].value.trim()) {
-                    formData.jezyki.push({
-                        jezyk: jezyki[i].value,
-                        poziom: poziomy[i].value
-                    });
-                }
-            }
-
-            // Zbieranie doświadczenia
-            const stanowiska = document.querySelectorAll('input[name="stanowisko[]"]');
-            const firmy = document.querySelectorAll('input[name="firma[]"]');
-            const lataPraca = document.querySelectorAll('input[name="lata-praca[]"]');
-            const obowiazki = document.querySelectorAll('textarea[name="obowiazki[]"]');
-            for (let i = 0; i < stanowiska.length; i++) {
-                if (stanowiska[i].value.trim() || firmy[i].value.trim() || lataPraca[i].value.trim()) {
-                    formData.doswiadczenie.push({
-                        stanowisko: stanowiska[i].value,
-                        firma: firmy[i].value,
-                        lata: lataPraca[i].value,
-                        obowiazki: obowiazki[i].value
-                    });
-                }
-            }
-
-            // Zbieranie referencji/projektów
-            const tytuly = document.querySelectorAll('input[name="tytul-projektu[]"]');
-            const opisy = document.querySelectorAll('textarea[name="opis-projektu[]"]');
-            const linki = document.querySelectorAll('input[name="link-projektu[]"]');
-            for (let i = 0; i < tytuly.length; i++) {
-                if (tytuly[i].value.trim() || opisy[i].value.trim()) {
-                    formData.referencje.push({
-                        tytul: tytuly[i].value,
-                        opis: opisy[i].value,
-                        link: linki[i].value
-                    });
-                }
-            }
-
-            return formData;
-        }
-
-        // Obsługa formularza
-        document.getElementById('cvForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Zbieranie danych w formacie JSON
-            const cvData = collectFormData();
-            
-            // Wyświetlenie danych w konsoli (do debugowania)
-            console.log('Dane CV w formacie JSON:', cvData);
-            
-            // Przekazanie danych do zmiennej globalnej
-            window.cvData = cvData;
-            
-            // Automatyczne wysłanie danych do AI
-            sendToAI(cvData);
-        });
-
-        // Funkcja inicjalizacji selektora motywów
-        function initThemeSelector() {
-            const select = document.getElementById('theme-select');
-            if (!select) {
-                // Spróbuj ponownie za chwilę, jeśli element jeszcze nie istnieje
-                setTimeout(initThemeSelector, 100);
-                return;
-            }
-
-            const templates = window.config?.templates;
-            
-            // Jeśli config jeszcze nie jest załadowany, spróbuj ponownie
-            if (!window.config || !templates) {
-                setTimeout(initThemeSelector, 100);
-                return;
-            }
-
-            // Wyczyszczenie opcji
-            select.innerHTML = '';
-
-            if (templates && typeof templates === 'object') {
-                // Mapowanie kluczy motywów na czytelne nazwy
-                const themeLabels = {
-                    modernBlue: 'Modern Blue',
-                    classic: 'Classic'
-                };
-                
-                // Dodaj opcje z config.templates
-                Object.keys(templates).forEach((key) => {
-                    const opt = document.createElement('option');
-                    opt.value = key;
-                    opt.textContent = themeLabels[key] || key;
-                    select.appendChild(opt);
-                });
-                // Domyślnie wybierz 'modernBlue' jeśli istnieje
-                if (templates.modernBlue) {
-                    select.value = 'modernBlue';
-                }
-            } else {
-                // Fallback
-                const opt = document.createElement('option');
-                opt.value = 'modernBlue';
-                opt.textContent = 'Modern Blue';
-                select.appendChild(opt);
-            }
-        }
-
-        // Funkcja inicjalizacji selektora promptów
-        function initPromptSelector() {
-            const select = document.getElementById('prompt-select');
-            if (!select) {
-                // Spróbuj ponownie za chwilę, jeśli element jeszcze nie istnieje
-                setTimeout(initPromptSelector, 100);
-                return;
-            }
-
-            const prompts = window.config?.prompts;
-            
-            // Jeśli config jeszcze nie jest załadowany, spróbuj ponownie
-            if (!window.config || !prompts) {
-                setTimeout(initPromptSelector, 100);
-                return;
-            }
-
-            // Wyczyszczenie opcji
-            select.innerHTML = '';
-
-            if (prompts && typeof prompts === 'object') {
-                // Dodaj opcje z config.prompts
-                Object.keys(prompts).forEach((key) => {
-                    const opt = document.createElement('option');
-                    opt.value = key;
-                    opt.textContent = prompts[key]?.label || key;
-                    select.appendChild(opt);
-                });
-                // Domyślnie wybierz 'verbose' jeśli istnieje, w innym razie pierwszą opcję
-                if (prompts.verbose) {
-                    select.value = 'verbose';
-                }
-            } else {
-                // Fallback do pojedynczego cvPrompt
-                const opt = document.createElement('option');
-                opt.value = '';
-                opt.textContent = 'Domyślny prompt';
-                select.appendChild(opt);
-            }
-        }
-
-        // Uruchom inicjalizację po załadowaniu DOM i config.js
-        function initializeSelectors() {
-            let attempts = 0;
-            const maxAttempts = 50; // Maksymalnie 5 sekund (50 * 100ms)
-            
-            function tryInit() {
-                attempts++;
-                if (window.config && window.config.templates && window.config.prompts) {
-                    // Config jest gotowy
-                    initThemeSelector();
-                    initPromptSelector();
-                } else if (attempts < maxAttempts) {
-                    // Spróbuj ponownie za 100ms
-                    setTimeout(tryInit, 100);
-                } else {
-                    // Po max próbach, użyj fallback
-                    console.warn('Config.js nie został załadowany w oczekiwanym czasie. Używam fallback.');
-                    const themeSelect = document.getElementById('theme-select');
-                    const promptSelect = document.getElementById('prompt-select');
-                    if (themeSelect) {
-                        themeSelect.innerHTML = '<option value="modernBlue">Modern Blue</option>';
-                    }
-                    if (promptSelect) {
-                        promptSelect.innerHTML = '<option value="verbose">Kreatywne rozwinięcie</option>';
-                    }
-                }
-            }
-            
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', tryInit);
-            } else {
-                tryInit();
-            }
-        }
-        
-        // Uruchom inicjalizację
-        initializeSelectors();
-
-        // Funkcja pobierania JSON jako plik
-        function downloadJSON() {
-            const cvData = collectFormData();
-            const jsonText = JSON.stringify(cvData, null, 2);
-            const blob = new Blob([jsonText], { type: 'application/json;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'cv_data.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        // Funkcja kopiowania JSON do schowka
-        function copyToClipboard() {
-            const cvData = collectFormData();
-            const jsonText = JSON.stringify(cvData, null, 2);
-            navigator.clipboard.writeText(jsonText).then(function() {
-                alert('JSON został skopiowany do schowka!');
-            }).catch(function(err) {
-                console.error('Błąd kopiowania: ', err);
-                // Fallback dla starszych przeglądarek
-                const textArea = document.createElement('textarea');
-                textArea.value = jsonText;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                alert('JSON został skopiowany do schowka!');
-            });
-        }
-
-        // Funkcja wczytująca dane z pliku JSON i wypełniająca formularz
-        function loadFromJSONFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const jsonData = JSON.parse(e.target.result);
-                    populateFormFromJSON(jsonData);
-                    
-                    // Wyczyść input, żeby można było wczytać ten sam plik ponownie
-                    event.target.value = '';
-                } catch (error) {
-                    alert('Błąd: Nieprawidłowy format JSON. ' + error.message);
-                    console.error('Błąd parsowania JSON:', error);
-                }
-            };
-            reader.onerror = function() {
-                alert('Błąd podczas odczytu pliku.');
-            };
-            reader.readAsText(file);
-        }
-
-        // Funkcja wypełniająca formularz danymi z JSON
-        function populateFormFromJSON(data) {
-            // Wypełnij dane osobowe
-            if (data.daneOsobowe) {
-                if (data.daneOsobowe.imie) document.getElementById('imie').value = data.daneOsobowe.imie;
-                if (data.daneOsobowe.nazwisko) document.getElementById('nazwisko').value = data.daneOsobowe.nazwisko;
-                if (data.daneOsobowe.telefon) document.getElementById('telefon').value = data.daneOsobowe.telefon;
-                if (data.daneOsobowe.email) document.getElementById('email').value = data.daneOsobowe.email;
-                if (data.daneOsobowe.adres) document.getElementById('adres').value = data.daneOsobowe.adres;
-            }
-
-            // Wypełnij "O mnie"
-            if (data.oMnie) document.getElementById('o-mnie').value = data.oMnie;
-
-            // Wypełnij edukację
-            if (data.edukacja && Array.isArray(data.edukacja) && data.edukacja.length > 0) {
-                clearContainer('szkoly-container');
-                data.edukacja.forEach((ed, index) => {
-                    if (index > 0) addSchool();
-                    const sections = document.querySelectorAll('#szkoly-container .dynamic-section');
-                    const inputs = sections[index].querySelectorAll('input');
-                    if (inputs[0]) inputs[0].value = ed.szkola || '';
-                    if (inputs[1]) inputs[1].value = ed.lata || '';
-                });
-            }
-
-            // Wypełnij umiejętności
-            if (data.umiejetnosci && Array.isArray(data.umiejetnosci) && data.umiejetnosci.length > 0) {
-                clearContainer('umiejetnosci-container');
-                data.umiejetnosci.forEach((skill, index) => {
-                    if (index > 0) addSkill();
-                    const sections = document.querySelectorAll('#umiejetnosci-container .dynamic-section');
-                    const inputs = sections[index].querySelectorAll('input');
-                    if (inputs[0]) inputs[0].value = skill || '';
-                });
-            }
-
-            // Wypełnij języki
-            if (data.jezyki && Array.isArray(data.jezyki) && data.jezyki.length > 0) {
-                clearContainer('jezyki-container');
-                data.jezyki.forEach((lang, index) => {
-                    if (index > 0) addLanguage();
-                    const sections = document.querySelectorAll('#jezyki-container .dynamic-section');
-                    const inputs = sections[index].querySelectorAll('input');
-                    if (inputs[0]) inputs[0].value = lang.jezyk || '';
-                    if (inputs[1]) inputs[1].value = lang.poziom || '';
-                });
-            }
-
-            // Wypełnij doświadczenie
-            if (data.doswiadczenie && Array.isArray(data.doswiadczenie) && data.doswiadczenie.length > 0) {
-                clearContainer('doswiadczenie-container');
-                data.doswiadczenie.forEach((exp, index) => {
-                    if (index > 0) addExperience();
-                    const sections = document.querySelectorAll('#doswiadczenie-container .dynamic-section');
-                    const inputs = sections[index].querySelectorAll('input');
-                    const textareas = sections[index].querySelectorAll('textarea');
-                    if (inputs[0]) inputs[0].value = exp.stanowisko || '';
-                    if (inputs[1]) inputs[1].value = exp.firma || '';
-                    if (inputs[2]) inputs[2].value = exp.lata || '';
-                    if (textareas[0]) textareas[0].value = exp.obowiazki || '';
-                });
-            }
-
-            // Wypełnij referencje/projekty
-            if (data.referencje && Array.isArray(data.referencje) && data.referencje.length > 0) {
-                clearContainer('referencje-container');
-                data.referencje.forEach((ref, index) => {
-                    if (index > 0) addReference();
-                    const sections = document.querySelectorAll('#referencje-container .dynamic-section');
-                    const inputs = sections[index].querySelectorAll('input');
-                    const textareas = sections[index].querySelectorAll('textarea');
-                    if (inputs[0]) inputs[0].value = ref.tytul || '';
-                    if (textareas[0]) textareas[0].value = ref.opis || '';
-                    if (inputs[1]) inputs[1].value = ref.link || '';
-                });
-            }
-        }
-
-        // Zmienna globalna do przechowywania wygenerowanego HTML
-        let generatedCVHtml = null;
-        let generatedCVBlobUrl = null;
-
-        // Zawartość plików CSS i JS (do wbudowania w HTML) - cv-scaling.css jako fallback
-        const cvScalingCssFallback = `/* Wspólne style skalowania CV dla wszystkich motywów */
-/* Ten plik zawiera reguły odpowiedzialne za automatyczne dopasowanie CV do jednej strony A4 */
-/* Należy załadować ten plik PRZED plikiem CSS motywu (style.css lub style1.css) */
-
-:root {
-  /* Skalowanie zawartości (ustawiane przez cv-auto-fit.js) */
-  --content-scale: 1;
-}
-
-/* Pojedyncza strona A4 - ustawienia skalowania */
-/* Uwaga: --page-height jest definiowane w pliku CSS motywu (style.css/style1.css) */
-.page {
-  height: var(--page-height, 297mm); /* Fallback do 297mm jeśli zmienna nie jest zdefiniowana */
-  overflow: hidden; /* Ukryj wszystko co wychodzi poza stronę */
-  position: relative;
-}
-
-/* Struktura zawartości CV - przygotowanie do skalowania */
-.cv-columns {
-  transform-origin: top left; /* Dla skalowania z cv-auto-fit.js */
-}
-
-/* Ustawienia druku z zachowaniem skalowania */
-@media print {
-  .page {
-    height: var(--page-height, 297mm) !important; /* Dokładna wysokość A4 */
-    overflow: hidden !important; /* Ukryj wszystko co wychodzi poza stronę przy druku */
-  }
-  /* Transform scale działa przy druku, więc skalowanie będzie działać */
-}
-`;
-
-        // Funkcja wbudowująca CSS i JS bezpośrednio w HTML
-        async function embedAssetsInHtml(htmlString) {
-            let processedHtml = htmlString;
-            
-            // Pobierz zawartość plików CSS i JS używając fetch (tylko jeśli jesteśmy na lokalnym serwerze)
-            // Jeśli to nie zadziała, użyj hardcoded zawartości
-            const assets = {
-                'cv-scaling.css': cvScalingCssFallback,
-                'cv-auto-fit.js': '', // Będzie wczytane poniżej
-                'cv-inline-edit.js': '', // Będzie wczytane poniżej
-            };
-
-            // Spróbuj wczytać pliki CSS z serwera (jeśli są dostępne)
-            try {
-                const cvScalingResponse = await fetch('cv-scaling.css');
-                if (cvScalingResponse.ok) {
-                    assets['cv-scaling.css'] = await cvScalingResponse.text();
-                }
-            } catch (e) {
-                // Użyj hardcoded zawartości
-            }
-
-            try {
-                const style1Response = await fetch('style1.css');
-                if (style1Response.ok) {
-                    assets['style1.css'] = await style1Response.text();
-                }
-            } catch (e) {
-                // Użyj pustej zawartości
-            }
-
-            try {
-                const styleResponse = await fetch('style.css');
-                if (styleResponse.ok) {
-                    assets['style.css'] = await styleResponse.text();
-                }
-            } catch (e) {
-                // Użyj pustej zawartości
-            }
-
-            try {
-                const autoFitResponse = await fetch('cv-auto-fit.js');
-                if (autoFitResponse.ok) {
-                    assets['cv-auto-fit.js'] = await autoFitResponse.text();
-                }
-            } catch (e) {
-                // Użyj hardcoded zawartości poniżej
-            }
-
-            try {
-                const inlineEditResponse = await fetch('cv-inline-edit.js');
-                if (inlineEditResponse.ok) {
-                    assets['cv-inline-edit.js'] = await inlineEditResponse.text();
-                }
-            } catch (e) {
-                // Użyj hardcoded zawartości poniżej
-            }
-
-            // Jeśli pliki nie zostały wczytane, użyj hardcoded zawartości
-            if (!assets['cv-auto-fit.js']) {
-                assets['cv-auto-fit.js'] = `/* cv-auto-fit.js content - zobacz plik cv-auto-fit.js dla pełnej zawartości */
-(function() {
-  'use strict';
-  function fitToPage() {
-    const page = document.querySelector('.page');
-    const cvColumns = document.querySelector('.cv-columns');
-    const root = document.documentElement;
-    if (!page || !cvColumns) {
-      if (document.readyState === 'loading') {
-        setTimeout(fitToPage, 100);
-      }
-      return;
-    }
-    function mmToPx(mm) {
-      return mm * 3.779527559;
-    }
-    const pageHeight = 297;
-    const marginTop = 12;
-    const marginBottom = 15;
-    const availableHeight = pageHeight - marginTop - marginBottom;
-    function checkAndScale() {
-      root.style.setProperty('--content-scale', '1');
-      cvColumns.style.transform = '';
-      const addButtons = page.querySelectorAll('.cv-add-btn, .cv-delete-btn, .cv-delete-section-btn');
-      const addButtonsData = [];
-      addButtons.forEach((btn) => {
-        const hasDisplay = btn.style.display !== '';
-        addButtonsData.push({
-          element: btn,
-          originalDisplay: hasDisplay ? btn.style.display : null
-        });
-        btn.style.display = 'none';
-      });
-      void cvColumns.offsetHeight;
-      setTimeout(() => {
-        const contentHeight = cvColumns.scrollHeight;
-        const contentWidth = cvColumns.scrollWidth;
-        const availableHeightPx = mmToPx(availableHeight);
-        const pageWidthPx = mmToPx(210);
-        const marginSidesPx = mmToPx(12) * 2;
-        const maxWidthPx = pageWidthPx - marginSidesPx;
-        const heightScale = contentHeight > availableHeightPx 
-          ? (availableHeightPx / contentHeight) * 0.98
-          : 1;
-        const widthScale = contentWidth > maxWidthPx
-          ? (maxWidthPx / contentWidth) * 0.98
-          : 1;
-        let finalScale = Math.min(heightScale, widthScale);
-        finalScale = Math.max(finalScale, 0.5);
-        if (finalScale < 1) {
-          root.style.setProperty('--content-scale', finalScale);
-          cvColumns.style.transform = 'scale(' + finalScale + ')';
-          cvColumns.style.transformOrigin = 'top left';
-        } else {
-          root.style.setProperty('--content-scale', '1');
-          cvColumns.style.transform = '';
-        }
-        addButtonsData.forEach(item => {
-          if (item.originalDisplay !== null) {
-            item.element.style.display = item.originalDisplay;
-          } else {
-            item.element.style.display = '';
-          }
-        });
-      }, 10);
-    }
-    const images = page.querySelectorAll('img');
-    let imagesLoaded = 0;
-    const totalImages = images.length;
-    if (totalImages > 0) {
-      images.forEach(img => {
-        if (img.complete) {
-          imagesLoaded++;
-        } else {
-          img.onload = function() {
-            imagesLoaded++;
-            if (imagesLoaded === totalImages) {
-              setTimeout(checkAndScale, 150);
-            }
-          };
-          img.onerror = function() {
-            imagesLoaded++;
-            if (imagesLoaded === totalImages) {
-              setTimeout(checkAndScale, 150);
-            }
-          };
-        }
-      });
-      if (imagesLoaded === totalImages) {
-        setTimeout(checkAndScale, 150);
-      }
-    } else {
-      setTimeout(checkAndScale, 150);
-    }
-    if (document.readyState === 'complete') {
-      setTimeout(checkAndScale, 500);
-    } else {
-      window.addEventListener('load', function() {
-        setTimeout(checkAndScale, 500);
-      });
-    }
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', fitToPage);
-  } else {
-    fitToPage();
-  }
-  let resizeTimeout;
-  window.addEventListener('resize', function() {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(fitToPage, 200);
-  });
-  window.cvFitToPage = fitToPage;
-})();`;
-            }
-
-            if (!assets['cv-inline-edit.js']) {
-                // Uwaga: Ze względu na długość pełnej zawartości cv-inline-edit.js (1300+ linii),
-                // najlepiej wczytać ją przez fetch jeśli pliki są dostępne lokalnie.
-                // Jeśli fetch nie zadziała, użyj uproszczonej wersji z podstawową funkcjonalnością zapisywania stanu.
-                console.warn('cv-inline-edit.js nie został wczytany z serwera. Używam uproszczonej wersji.');
-                assets['cv-inline-edit.js'] = `/* Uproszczona wersja cv-inline-edit.js z podstawową funkcjonalnością zapisywania stanu */
-(function() {
-  'use strict';
-  let hasUnsavedChanges = false;
-  
-  // Funkcje zapisywania stanu
-  function getSavedStates() {
-    try {
-      const savesStr = localStorage.getItem('cv-saves-list');
-      return savesStr ? JSON.parse(savesStr) : {};
-    } catch (e) { return {}; }
-  }
-  
-  function saveCVState(saveName) {
-    try {
-      const htmlContent = document.documentElement.outerHTML;
-      const timestamp = new Date().toISOString();
-      const saveKey = saveName ? 'cv-state-' + saveName.replace(/[^a-zA-Z0-9]/g, '-') : 'cv-state-' + timestamp;
-      
-      if (!saveName) {
-        const dateStr = new Date().toLocaleString('pl-PL', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-        saveName = 'Zapis z ' + dateStr;
-      }
-      
-      const stateData = { html: htmlContent, timestamp: timestamp, name: saveName, key: saveKey };
-      localStorage.setItem(saveKey, JSON.stringify(stateData));
-      
-      const saves = getSavedStates();
-      saves[saveKey] = { timestamp: timestamp, name: saveName };
-      localStorage.setItem('cv-saves-list', JSON.stringify(saves));
-      localStorage.setItem('cv-last-save', saveKey);
-      
-      showSaveIndicator('✓ Stan zapisany: "' + saveName + '"');
-      if (window.cvUpdateSavesPanel) window.cvUpdateSavesPanel();
-      return true;
-    } catch (e) {
-      alert('Nie można zapisać stanu: ' + e.message);
-      return false;
-    }
-  }
-  
-  function restoreCVState(saveKey) {
-    try {
-      const stateDataStr = localStorage.getItem(saveKey);
-      if (!stateDataStr) { alert('Nie znaleziono zapisanego stanu.'); return false; }
-      const stateData = JSON.parse(stateDataStr);
-      if (confirm('Czy na pewno chcesz przywrócić stan "' + stateData.name + '"? Obecne zmiany zostaną utracone.')) {
-        document.open();
-        document.write(stateData.html);
-        document.close();
-        
-        // Funkcja próbująca zainicjalizować z wieloma próbami
-        function tryInitWithRetry(attempt, maxAttempts) {
-          attempt = attempt || 0;
-          maxAttempts = maxAttempts || 10;
-          
-          // Reset flagi aby umożliwić ponowną inicjalizację
-          window.__cvInitCalled = false;
-          if (document.body) {
-            document.body.removeAttribute('data-cv-initialized');
-          }
-          
-          // Sprawdź czy funkcje są dostępne
-          var hasCvInit = window.cvInit && typeof window.cvInit === 'function';
-          var hasAddButtons = typeof addButtons === 'function';
-          
-          if (hasCvInit) {
-            try {
-              window.cvInit();
-              showSaveIndicator('✓ Przywrócono stan: "' + stateData.name + '"');
-              return;
-            } catch (e) {
-              console.error('Błąd cvInit:', e);
-            }
-          }
-          
-          // Jeśli cvInit nie działa, spróbuj dodać przyciski bezpośrednio
-          if (hasAddButtons) {
-            try {
-              addButtons();
-              showSaveIndicator('✓ Przywrócono stan: "' + stateData.name + '"');
-              return;
-            } catch (e) {
-              console.error('Błąd addButtons:', e);
-            }
-          }
-          
-          // Jeśli nie udało się i są jeszcze próby, spróbuj ponownie
-          if (attempt < maxAttempts) {
-            setTimeout(function() { tryInitWithRetry(attempt + 1, maxAttempts); }, 200);
-          } else {
-            console.error('Nie udało się zainicjalizować po przywróceniu stanu');
-            showSaveIndicator('✓ Przywrócono stan: "' + stateData.name + '"');
-          }
-        }
-        
-        // Rozpocznij próby inicjalizacji
-        setTimeout(function() { tryInitWithRetry(); }, 300);
-        return true;
-      }
-      return false;
-    } catch (e) {
-      alert('Nie można przywrócić stanu: ' + e.message);
-      return false;
-    }
-  }
-  
-  function deleteCVState(saveKey) {
-    try {
-      const saves = getSavedStates();
-      delete saves[saveKey];
-      localStorage.removeItem(saveKey);
-      localStorage.setItem('cv-saves-list', JSON.stringify(saves));
-      const lastSave = localStorage.getItem('cv-last-save');
-      if (lastSave === saveKey) localStorage.removeItem('cv-last-save');
-      if (window.cvUpdateSavesPanel) window.cvUpdateSavesPanel();
-      showSaveIndicator('✓ Stan został usunięty');
-      return true;
-    } catch (e) { return false; }
-  }
-  
-  function showSaveIndicator(msg) {
-    const ind = document.createElement('div');
-    ind.className = 'save-indicator';
-    ind.textContent = msg || '✓ Zmiany zapisane lokalnie';
-    ind.style.cssText = 'position:fixed;bottom:80px;right:20px;background:#28a745;color:white;padding:10px 16px;border-radius:6px;box-shadow:0 4px 12px rgba(40,167,69,0.3);z-index:1000;font-size:13px;animation:slideUp 0.3s ease;';
-    document.body.appendChild(ind);
-    setTimeout(() => { ind.style.opacity='0'; ind.style.transition='opacity 0.3s'; setTimeout(() => ind.remove(), 300); }, 3000);
-  }
-  
-  // Dodaj przyciski
-  function addButtons() {
-    if (document.getElementById('cv-download-btn')) return;
-    const btn = document.createElement('button');
-    btn.id = 'cv-download-btn';
-    btn.className = 'cv-download-button';
-    btn.innerHTML = '💾 Zapisz stan CV';
-    btn.title = 'Zapisz aktualny stan CV w przeglądarce';
-    btn.style.cssText = 'position:fixed;bottom:20px;right:20px;padding:12px 20px;background:#007bff;color:white;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;box-shadow:0 4px 12px rgba(0,123,255,0.3);z-index:1000;display:none;';
-    btn.onclick = () => {
-      const name = prompt('Wprowadź nazwę dla tego zapisu (lub zostaw puste dla automatycznej):', '');
-      saveCVState(name || null);
-    };
-    document.body.appendChild(btn);
-    
-    const mgrBtn = document.createElement('button');
-    mgrBtn.id = 'cv-saves-manager-btn';
-    mgrBtn.innerHTML = '📚 Moje zapisy';
-    mgrBtn.style.cssText = 'position:fixed;bottom:20px;right:180px;padding:12px 20px;background:#6c757d;color:white;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;z-index:1000;';
-    mgrBtn.onclick = () => {
-      const saves = getSavedStates();
-      const keys = Object.keys(saves).sort((a,b) => saves[b].timestamp.localeCompare(saves[a].timestamp));
-      if (keys.length === 0) {
-        alert('Brak zapisanych stanów.');
-        return;
-      }
-      let msg = 'Zapisane stany CV:\\n\\n';
-      keys.forEach((key, i) => {
-        const save = saves[key];
-        const date = new Date(save.timestamp).toLocaleString('pl-PL');
-        msg += (i+1) + '. ' + save.name + ' (' + date + ')\\n';
-      });
-      msg += '\\nWpisz numer stanu do przywrócenia (lub 0 aby anulować):';
-      const choice = prompt(msg);
-      if (choice && choice !== '0' && keys[parseInt(choice)-1]) {
-        restoreCVState(keys[parseInt(choice)-1]);
-      }
-    };
-    document.body.appendChild(mgrBtn);
-  }
-  
-  // Podstawowa funkcjonalność edycji inline
-  document.addEventListener('dblclick', function(e) {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON') return;
-    if (e.target.closest('button') || e.target.closest('script') || e.target.closest('style')) return;
-    
-    const element = e.target;
-    if (element.contentEditable !== 'true' && element.textContent.trim()) {
-      element.contentEditable = 'true';
-      element.style.outline = '2px solid #007bff';
-      element.style.outlineOffset = '2px';
-      element.style.backgroundColor = 'rgba(0, 123, 255, 0.05)';
-      
-      const range = document.createRange();
-      range.selectNodeContents(element);
-      const selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
-      element.focus();
-      
-      function finishEdit() {
-        element.contentEditable = 'false';
-        element.style.outline = '';
-        element.style.backgroundColor = '';
-        hasUnsavedChanges = true;
-        const btn = document.getElementById('cv-download-btn');
-        if (btn) {
-          btn.style.display = 'block';
-          // Przesuń przycisk zarządzania zapisami, żeby się nie nakładały
-          const savesButton = document.getElementById('cv-saves-manager-btn');
-          if (savesButton) {
-            savesButton.style.right = '200px';
-          }
-        }
-        try {
-          localStorage.setItem('cv-edited-content', document.documentElement.outerHTML);
-        } catch (e) {}
-      }
-      
-      element.addEventListener('blur', finishEdit, { once: true });
-      element.addEventListener('keydown', function(ev) {
-        if (ev.key === 'Enter' && !ev.shiftKey) {
-          ev.preventDefault();
-          finishEdit();
-        }
-        if (ev.key === 'Escape') {
-          ev.preventDefault();
-          element.textContent = element.dataset.originalText || element.textContent;
-          finishEdit();
-        }
-      });
-      
-      if (!element.dataset.originalText) {
-        element.dataset.originalText = element.textContent;
-      }
-    }
-  });
-  
-  window.cvRestoreState = restoreCVState;
-  window.cvDeleteState = deleteCVState;
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', addButtons);
-  } else {
-    addButtons();
-  }
-  
-  // Komunikat pytający o przywrócenie zapisanego stanu został usunięty
-  // Użytkownik może ręcznie przywrócić stan przez przycisk "Moje zapisy"
-})();`;
-            }
-
-            // Zamień linki do CSS na inline style
-            const linkCssRegex = /<link\s+rel="stylesheet"\s+href="([^"]+\.css)"\s*\/?>/gi;
-            processedHtml = processedHtml.replace(
-                linkCssRegex,
-                (match, href) => {
-                    const filename = href.split('/').pop();
-                    if (assets[filename]) {
-                        // Escape specjalnych znaków w CSS
-                        const escapedCss = assets[filename].replace(/<\/style>/gi, '<\\/style>');
-                        return '<style>' + escapedCss + '</style>';
-                    }
-                    return match; // Jeśli plik nie został znaleziony, pozostaw oryginalny link
-                }
-            );
-
-            // Zamień skrypty JS na inline script
-            // Użyj split aby uniknąć końca tagu script w kodzie źródłowym HTML
-            const scriptOpen = '<' + 'script';
-            const scriptClose = '<' + '/' + 'script' + '>';
-            const scriptEndRegexPattern = '<' + '\\/' + 'script' + '>';
-            const scriptEndRegex = new RegExp(scriptEndRegexPattern, 'gi');
-            
-            // Buduj regex pattern dla script src
-            const scriptSrcPattern = scriptOpen + '\\s+src="([^"]+\\.js)"\\s*' + '>' + scriptClose;
-            const scriptSrcRegex = new RegExp(scriptSrcPattern, 'gi');
-            
-            processedHtml = processedHtml.replace(scriptSrcRegex, function(match, src) {
-                const filename = src.split('/').pop();
-                if (assets[filename]) {
-                    // Escape specjalnych znaków w JS
-                    const escapedJs = assets[filename].replace(scriptEndRegex, '<\\/script>');
-                    return scriptOpen + '>' + escapedJs + scriptClose;
-                }
-                return match;
-            });
-
-            return processedHtml;
-        }
-
-        // Funkcja otwierająca pusty edytor CV (bez generowania)
-        async function openEmptyEditor() {
-            // Spróbuj wczytać szablon z template1.html, jeśli się nie uda, użyj pustego szablonu
-            let emptyCVTemplate = '';
-            
+        // Funkcja otwierająca edytor CV (bez generowania)
+        async function openEditor() {
             try {
                 const response = await fetch('template1.html');
                 if (response.ok) {
-                    emptyCVTemplate = await response.text();
+                    let emptyCVTemplate = await response.text();
                     // Dodaj linki do skryptów edycji jeśli ich nie ma
                     if (!emptyCVTemplate.includes('cv-auto-fit.js')) {
-                        // Dodaj przed </body>
                         const scriptsToAdd = '<link rel="stylesheet" href="cv-scaling.css" />' +
-                            '<script src="cv-auto-fit.js"><' + '/script>' +
-                            '<script src="cv-inline-edit.js"><' + '/script>';
+                            '<' + 'script src="cv-auto-fit.js"><' + '/script>' +
+                            '<' + 'script src="cv-inline-edit.js"><' + '/script>';
                         emptyCVTemplate = emptyCVTemplate.replace('</body>', scriptsToAdd + '</body>');
                     }
+                    // Utwórz blob URL z HTML
+                    const blob = new Blob([emptyCVTemplate], { type: 'text/html;charset=utf-8' });
+                    const blobUrl = URL.createObjectURL(blob);
+                    window.open(blobUrl, '_blank');
                 } else {
-                    throw new Error('Nie można wczytać szablonu');
+                    alert('Nie można wczytać szablonu CV. Upewnij się, że plik template1.html istnieje.');
                 }
             } catch (e) {
-                // Fallback - użyj podstawowego szablonu CV z minimalną strukturą
-                const parts = [
-                    '<!doctype html><html lang="pl"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />',
-                    '<title>CV – Edytor</title><link rel="stylesheet" href="style.css" /><link rel="stylesheet" href="cv-scaling.css" /></head>',
-                    '<body><section class="page"><div class="cv-columns"><aside class="cv-sidebar">',
-                    '<div class="avatar"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400&auto=format&fit=crop" alt="Zdjęcie profilowe" /></div>',
-                    '<section class="side-section"><h3 class="side-title">Contact</h3><div class="side-list"><div>Telefon</div><div>Email</div><div>Adres</div></div></section>',
-                    '<section class="side-section"><h3 class="side-title">Education</h3><div class="side-list"><div><strong>Lata</strong><br />Nazwa szkoły<br />Kierunek</div></div></section>',
-                    '<section class="side-section"><h3 class="side-title">Skills</h3><div class="side-list"><div>Umiejętność 1</div><div>Umiejętność 2</div></div></section>',
-                    '<section class="side-section"><h3 class="side-title">Languages</h3><div class="side-list"><div>Język (Poziom)</div></div></section></aside>',
-                    '<main class="cv-main"><header class="name-title"><h1><span class="light">IMIĘ</span> NAZWISKO</h1>',
-                    '<div class="role">STANOWISKO</div><div class="underline"></div></header>',
-                    '<section class="section"><div class="title">Profile</div><div class="rule"></div><p class="text">Opis profilu zawodowego...</p></section>',
-                    '<section class="section"><div class="title">Work Experience</div><div class="rule"></div>',
-                    '<div class="timeline"><article class="timeline-item"><div class="meta"><div><strong>Nazwa firmy</strong><br />Stanowisko</div><div>Lata</div></div>',
-                    '<ul><li>Opis obowiązków 1</li><li>Opis obowiązków 2</li></ul></article></div></section>',
-                    '<section class="section"><div class="title">Reference</div><div class="rule"></div>',
-                    '<div class="references"><div class="ref-card"><div class="name">Nazwa projektu</div><div class="small">Opis projektu</div></div></div></section>',
-                    '</main></div></section>' +
-                    '<script src="cv-auto-fit.js"><' + '/script>' +
-                    '<script src="cv-inline-edit.js"><' + '/script>' +
-                    '</body></html>'
-                ];
-                emptyCVTemplate = parts.join('');
+                alert('Błąd podczas otwierania edytora: ' + e.message);
             }
-            
-            // Wbuduj CSS i JS w HTML przed utworzeniem blob URL
-            const htmlWithAssets = await embedAssetsInHtml(emptyCVTemplate);
-            
-            // Utwórz blob URL z HTML zawierającym wbudowane zasoby
-            const blob = new Blob([htmlWithAssets], { type: 'text/html;charset=utf-8' });
-            const blobUrl = URL.createObjectURL(blob);
-            window.open(blobUrl, '_blank');
         }
 
-        // Funkcja otwierająca wygenerowane CV w nowej karcie
-        async function openGeneratedCV() {
-            if (!generatedCVHtml) {
-                alert('Brak wygenerowanego CV. Najpierw wygeneruj CV.');
-                return;
-            }
-            
-            // Wbuduj CSS i JS w HTML przed utworzeniem blob URL
-            const htmlWithAssets = await embedAssetsInHtml(generatedCVHtml);
-            
-            // Zwolnij poprzedni blob URL jeśli istnieje
-            if (generatedCVBlobUrl) {
-                URL.revokeObjectURL(generatedCVBlobUrl);
-            }
-            
-            // Utwórz nowy blob URL z HTML zawierającym wbudowane zasoby
-            const blob = new Blob([htmlWithAssets], { type: 'text/html;charset=utf-8' });
-            generatedCVBlobUrl = URL.createObjectURL(blob);
-            window.open(generatedCVBlobUrl, '_blank');
-        }
+        // Scroll reveal animation
+        function initScrollReveal() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
 
-        // Funkcja zapisywania pliku HTML z możliwością wyboru nazwy i lokalizacji (używana wewnętrznie)
-        async function saveHtmlFile(htmlContent, defaultFileName = 'cv.html') {
-            // Zapytaj użytkownika o nazwę pliku
-            const fileName = prompt('Wprowadź nazwę pliku:', defaultFileName.replace('.html', ''));
-            
-            if (!fileName) {
-                // Użytkownik anulował
-                return false;
-            }
-            
-            // Upewnij się, że plik ma rozszerzenie .html
-            const finalFileName = fileName.endsWith('.html') ? fileName : fileName + '.html';
-            
-            // Próba użycia File System Access API (daje możliwość wyboru lokalizacji)
-            if ('showSaveFilePicker' in window) {
-                try {
-                    const fileHandle = await window.showSaveFilePicker({
-                        suggestedName: finalFileName,
-                        types: [{
-                            description: 'HTML files',
-                            accept: {
-                                'text/html': ['.html']
-                            }
-                        }]
-                    });
-                    
-                    const writable = await fileHandle.createWritable();
-                    await writable.write(htmlContent);
-                    await writable.close();
-                    
-                    return true;
-                } catch (error) {
-                    // Użytkownik anulował dialog lub wystąpił błąd
-                    if (error.name !== 'AbortError') {
-                        console.error('Błąd zapisu pliku:', error);
-                        // Fallback do standardowego pobierania
-                    } else {
-                        return false; // Użytkownik anulował
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
                     }
-                }
-            }
-            
-            // Fallback: standardowe pobieranie (użytkownik może wybrać lokalizację w dialogu przeglądarki)
-            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = finalFileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            return true;
-        }
+                });
+            }, observerOptions);
 
-        // Funkcja pomocnicza do czyszczenia kontenerów dynamicznych sekcji
-        function clearContainer(containerId) {
-            const container = document.getElementById(containerId);
-            const sections = container.querySelectorAll('.dynamic-section');
-            sections.forEach((section, index) => {
-                if (index > 0) {
-                    section.remove();
-                } else {
-                    // Wyczyść pierwszy element zamiast usuwać
-                    const inputs = section.querySelectorAll('input, textarea');
-                    inputs.forEach(input => input.value = '');
-                }
+            // Obserwuj wszystkie elementy z klasą fade-in
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
             });
         }
 
-        // Funkcja wysyłania danych do AI
-        async function sendToAI(cvData) {
-            const responseDiv = document.getElementById('ai-response-content');
-            const aiSection = document.getElementById('ai-response');
-            
-            // Pokaż sekcję AI
-            aiSection.style.display = 'block';
-            responseDiv.textContent = 'Przetwarzanie...';
-            responseDiv.style.color = '';
-            responseDiv.style.fontWeight = '';
-            // Ukryj przyciski akcji podczas generowania
-            document.getElementById('ai-response-actions').style.display = 'none';
-            
-            // Przewiń do sekcji AI
-            aiSection.scrollIntoView({ behavior: 'smooth' });
-
-            try {
-                // Pobierz provider i konfigurację z config.js
-                const provider = window.config?.provider || 'gemini';
-                // Pobierz wybrany motyw i prompt
-                const selectedThemeKey = (document.getElementById('theme-select') || {}).value || window.config?.defaultTheme || 'modernBlue';
-                const selectedPromptKey = (document.getElementById('prompt-select') || {}).value || window.config?.defaultPromptKey || 'verbose';
-                
-                // Pobierz template HTML na podstawie wybranego motywu
-                const templateHtml = window.config?.getTemplateHtml ? window.config.getTemplateHtml(selectedThemeKey) : (window.config?.templateHtml || '');
-                
-                // Pobierz pełny prompt (wspólna część + specyficzne instrukcje)
-                let promptText = '';
-                if (window.config?.getFullPrompt) {
-                    promptText = window.config.getFullPrompt(selectedPromptKey);
-                } else {
-                    // Fallback dla kompatybilności wstecznej
-                    const prompts = window.config?.prompts;
-                    if (prompts && selectedPromptKey && prompts[selectedPromptKey]?.text) {
-                        promptText = prompts[selectedPromptKey].text;
-                    } else {
-                        promptText = window.config?.cvPrompt || '';
-                    }
-                }
-                
-                console.log('Wysyłanie do backend API:', {
-                    provider: provider,
-                    promptLength: promptText.length,
-                    templateLength: templateHtml.length
-                });
-                
-                // Wywołanie backend API (tokeny są bezpieczne na serwerze!)
-                const res = await fetch('/api/generate-cv', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        provider: provider,
-                        prompt: promptText,
-                        templateHtml: templateHtml,
-                        cvData: cvData
-                    })
-                });
-
-                if (!res.ok) {
-                    let errorMessage = `Błąd ${res.status}: ${res.statusText}`;
-                    try {
-                        const err = await res.json();
-                        errorMessage = err.error || err.message || errorMessage;
-                    } catch (e) {
-                        // Jeśli odpowiedź nie jest JSON, użyj statusText
-                    }
-                    responseDiv.textContent = 'Błąd API: ' + errorMessage;
-                    responseDiv.style.color = '#dc3545';
-                    return;
-                }
-
-                const data = await res.json();
-
-                // Pobierz wygenerowany HTML z odpowiedzi backendu
-                const cleanedHtml = data.html || '';
-
-                if (!cleanedHtml) {
-                    responseDiv.textContent = 'Błąd: Backend nie zwrócił HTML';
-                    responseDiv.style.color = '#dc3545';
-                    return;
-                }
-
-                // Zapisz wygenerowany HTML w zmiennej globalnej
-                generatedCVHtml = cleanedHtml;
-                // Zwolnij poprzedni blob URL jeśli istnieje
-                if (generatedCVBlobUrl) {
-                    URL.revokeObjectURL(generatedCVBlobUrl);
-                }
-                // Utwórz nowy blob URL dla podglądu
-                const blob = new Blob([cleanedHtml], { type: 'text/html;charset=utf-8' });
-                generatedCVBlobUrl = URL.createObjectURL(blob);
-                
-                // Pokaż przyciski akcji
-                document.getElementById('ai-response-actions').style.display = 'flex';
-                responseDiv.textContent = '✓ CV zostało wygenerowane pomyślnie!';
-                responseDiv.style.color = '#28a745';
-                responseDiv.style.fontWeight = 'bold';
-                
-                // Automatycznie otwórz CV w nowej karcie
-                setTimeout(() => {
-                    openGeneratedCV();
-                }, 500);
-                
-            } catch (error) {
-                console.error('Błąd sieci:', error);
-                responseDiv.textContent = 'Błąd sieci: ' + error.message;
-            }
+        // Inicjalizuj scroll reveal po załadowaniu strony
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initScrollReveal);
+        } else {
+            initScrollReveal();
         }
+
+        // Pokaż pierwszą sekcję CTA od razu (bez animacji)
+        window.addEventListener('load', () => {
+            const ctaSection = document.getElementById('cta-start');
+            if (ctaSection) {
+                setTimeout(() => {
+                    ctaSection.classList.add('visible');
+                }, 300);
+            }
+        });
     </script>
 </body>
 </html>
+
