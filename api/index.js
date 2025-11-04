@@ -43,6 +43,11 @@ const allowedOrigins = [
   'https://cv-creator-roan.vercel.app',
   // Wszystkie możliwe domeny Vercel dla tego projektu
   /^https:\/\/cv-creator.*\.vercel\.app$/,
+  // CUSTOM DOMAIN - cvgenerator.pl
+  'https://cvgenerator.pl',
+  'https://www.cvgenerator.pl',
+  'http://cvgenerator.pl',
+  'http://www.cvgenerator.pl',
   // Możesz dodać własną domenę jako zmienną środowiskową
   process.env.CUSTOM_DOMAIN ? `https://${process.env.CUSTOM_DOMAIN}` : null
 ].filter(item => item !== null && item !== undefined); // Usuń tylko null/undefined wartości, zachowaj regex
