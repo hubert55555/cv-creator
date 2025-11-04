@@ -6,6 +6,26 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
+// Upewnij się że fetch jest dostępny (Node.js 18+ ma natywny fetch)
+// Jeśli nie, użyj node-fetch jako fallback
+const ensureFetch = async () => {
+  if (typeof fetch === 'undefined') {
+    console.log('⚠️ fetch nie jest dostępny natywnie, ładuję node-fetch');
+    try {
+      const nodeFetch = await import('node-fetch');
+      global.fetch = nodeFetch.default;
+      console.log('✅ node-fetch załadowany pomyślnie');
+    } catch (e) {
+      console.error('❌ Nie można załadować node-fetch:', e);
+    }
+  } else {
+    console.log('✅ fetch dostępny natywnie');
+  }
+};
+
+// Wywołaj przy starcie
+ensureFetch().catch(e => console.error('Błąd podczas ładowania fetch:', e));
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -16,7 +36,7 @@ const allowedOrigins = [
   'http://localhost:3001',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:3001',
-  // Vercel automatycznjie ustawia VERCEL_URL i VERCEL_BRANCH_URL
+  // Vercel automatycznie ustawia VERCEL_URL i VERCEL_BRANCH_URL
   process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
   process.env.VERCEL_BRANCH_URL ? `https://${process.env.VERCEL_BRANCH_URL}` : null,
   // Główna domena projektu Vercel (cv-creator-roan.vercel.app)
@@ -387,12 +407,19 @@ app.post('/api/generate-cv', async (req, res) => {
     return res.json({ html: cleanedHtml });
 
   } catch (error) {
-    console.error('[API] Błąd:', error);
+    console.error('[API] 🚨 BŁĄD KRYTYCZNY:', error);
+    console.error('[API] Typ błędu:', error.name);
+    console.error('[API] Wiadomość:', error.message);
     console.error('[API] Stack trace:', error.stack);
-    console.error('[API] Request body:', JSON.stringify(req.body).substring(0, 500)); // Pierwsze 500 znaków
+    console.error('[API] Provider:', req.body?.provider);
+    console.error('[API] Prompt length:', req.body?.prompt?.length || 0);
+    console.error('[API] Template length:', req.body?.templateHtml?.length || 0);
+    
     return res.status(500).json({ 
       error: 'Wewnętrzny błąd serwera: ' + error.message,
-      details: process.env.NODE_ENV !== 'production' ? error.stack : undefined
+      errorType: error.name,
+      details: error.stack,
+      provider: req.body?.provider
     });
   }
 });
@@ -413,6 +440,12 @@ app.get('/api/debug', (req, res) => {
     'form.html cached': !!cachedHtmlFiles['form.html'],
     'index.html cached': !!cachedHtmlFiles['index.html'],
     publicDir,
+    'fetch available': typeof fetch !== 'undefined',
+    'Node version': process.version,
+    'API tokens configured': {
+      'GEMINI_API_TOKEN': !!process.env.GEMINI_API_TOKEN,
+      'HUGGINGFACE_API_TOKEN': !!process.env.HUGGINGFACE_API_TOKEN
+    },
     files: {}
   };
   
