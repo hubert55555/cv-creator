@@ -121,35 +121,47 @@ function loadHtmlFiles() {
     path.resolve(process.cwd()),
     '/var/task/public',
     '/var/task',
+    path.resolve(__dirname, '..', '..', 'public'), // Może być wyżej
   ];
   
+  console.log('🔍 Szukam plików HTML...');
   for (const basePath of possiblePaths) {
     try {
       const formPath = path.join(basePath, 'form.html');
       const indexPath = path.join(basePath, 'index.html');
       
+      console.log('  Sprawdzam:', formPath);
+      
       if (fs.existsSync && fs.existsSync(formPath) && fs.existsSync(indexPath)) {
-        console.log('✅ Wczytuję pliki HTML z:', basePath);
+        console.log('✅ ZNALEZIONO! Wczytuję pliki HTML z:', basePath);
         cachedHtmlFiles['form.html'] = fs.readFileSync(formPath, 'utf8');
         cachedHtmlFiles['index.html'] = fs.readFileSync(indexPath, 'utf8');
-        publicDir = basePath; // Zaktualizuj publicDir
-        console.log('✅ Pliki HTML wczytane do pamięci');
+        publicDir = basePath;
+        console.log('✅ ✅ ✅ Pliki HTML wczytane do pamięci!');
+        console.log('  form.html rozmiar:', cachedHtmlFiles['form.html'].length, 'znaków');
+        console.log('  index.html rozmiar:', cachedHtmlFiles['index.html'].length, 'znaków');
         return true;
+      } else {
+        console.log('  ❌ Brak plików w:', basePath);
       }
     } catch (e) {
-      // Kontynuuj próbę następnej ścieżki
+      console.log('  ❌ Błąd przy sprawdzaniu:', basePath, e.message);
     }
   }
   
-  console.warn('⚠️ Nie udało się wczytać plików HTML do pamięci');
+  console.error('⚠️ ⚠️ ⚠️ NIE UDAŁO SIĘ WCZYTAĆ PLIKÓW HTML DO PAMIĘCI!');
   return false;
 }
 
-// Wczytaj pliki przy starcie
+// Wczytaj pliki przy starcie - TO MUSI DZIAŁAĆ
 try {
-  loadHtmlFiles();
+  const loaded = loadHtmlFiles();
+  if (!loaded) {
+    console.error('🚨 KRYTYCZNY BŁĄD: Pliki HTML nie zostały wczytane!');
+  }
 } catch (e) {
-  console.error('Błąd przy wczytywaniu plików HTML:', e);
+  console.error('🚨 BŁĄD przy wczytywaniu plików HTML:', e);
+  console.error('Stack trace:', e.stack);
 }
 
 // Credentials z zmiennych środowiskowych (BEZPIECZNE!)
@@ -337,69 +349,56 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'API działa poprawnie' });
 });
 
-// Routing dla plików statycznych - działa zarówno lokalnie jak i na Vercel
-// Na Vercel, pliki z public są kopiowane do build output, ale routing przez Express może być potrzebny
-// gdy używasz rewrites lub gdy pliki nie są dostępne bezpośrednio
+// NAPRAWIAM TO KURWA RAZ NA ZAWSZE
+// Routing dla plików HTML MUSI BYĆ PRZED WSZYSTKIM INNYM
+// I MUSI BYĆ EXPLICIT - żadnych fallbacków, żadnych przekierowań
 
-// EPICKIE ROZWIĄZANIE: Routing dla plików HTML - najpierw z cache, potem z dysku
+// FORM.HTML - PIERWSZY, BEZPOŚREDNIO, BEZ ŻADNYCH WARUNKÓW
 app.get('/form.html', (req, res) => {
-  // Jeśli mamy plik w cache, użyj go (NAJLEPSZE - zawsze działa)
+  console.log('🔥 OBSŁUGUJĘ /form.html');
   if (cachedHtmlFiles['form.html']) {
-    console.log('✅ Serwuję form.html z cache');
+    console.log('✅ Wysyłam form.html z cache');
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.send(cachedHtmlFiles['form.html']);
   }
-  
-  // Fallback: spróbuj z dysku
-  res.sendFile('form.html', { root: publicDir }, (err) => {
-    if (err) {
-      console.error('❌ Błąd przy wysyłaniu form.html:', err);
-      console.error('publicDir:', publicDir);
-      res.status(404).send('<h1>404 - Nie znaleziono form.html</h1><p>Sprawdź logi serwera.</p>');
-    }
-  });
+  console.error('❌ BRAK form.html w cache!');
+  res.status(500).send('<h1>Błąd: form.html nie został wczytany do pamięci</h1>');
 });
 
+// INDEX.HTML - TYLKO DLA /index.html i /
 app.get('/index.html', (req, res) => {
-  // Jeśli mamy plik w cache, użyj go
+  console.log('🔥 OBSŁUGUJĘ /index.html');
   if (cachedHtmlFiles['index.html']) {
-    console.log('✅ Serwuję index.html z cache');
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.send(cachedHtmlFiles['index.html']);
   }
-  
-  // Fallback: spróbuj z dysku
-  res.sendFile('index.html', { root: publicDir }, (err) => {
-    if (err) {
-      console.error('❌ Błąd przy wysyłaniu index.html:', err);
-      res.status(404).send('<h1>404 - Nie znaleziono index.html</h1>');
-    }
-  });
+  res.status(500).send('<h1>Błąd: index.html nie został wczytany do pamięci</h1>');
 });
 
-// Serwuj pliki statyczne
-app.use(express.static(publicDir, { 
-  index: false, // Nie używaj automatycznego index.html - obsługujemy to ręcznie
-  extensions: ['html', 'htm'],
-  dotfiles: 'ignore',
-  fallthrough: true
-}));
-
-// Fallback do index.html TYLKO dla root path (nie dla innych ścieżek)
 app.get('/', (req, res) => {
-  // Jeśli mamy plik w cache, użyj go
+  console.log('🔥 OBSŁUGUJĘ /');
   if (cachedHtmlFiles['index.html']) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.send(cachedHtmlFiles['index.html']);
   }
-  
-  // Fallback: spróbuj z dysku
-  res.sendFile('index.html', { root: publicDir }, (err) => {
-    if (err) {
-      console.error('❌ Błąd przy wysyłaniu index.html z root:', err);
-      res.status(404).send('<h1>404 - Nie znaleziono index.html</h1>');
-    }
-  });
+  res.status(500).send('<h1>Błąd: index.html nie został wczytany do pamięci</h1>');
+});
+
+// Serwuj TYLKO pliki statyczne (CSS, JS, obrazy) - NIE HTML!
+// Pliki HTML są już obsłużone przez explicit routing powyżej
+app.use((req, res, next) => {
+  // ABSOLUTNIE NIE TOUCH plików HTML - już są obsłużone
+  if (req.path.endsWith('.html')) {
+    console.log('⚠️ Żądanie do .html które nie zostało obsłużone:', req.path);
+    return res.status(404).send(`<h1>404</h1><p>Plik ${req.path} nie został znaleziony</p>`);
+  }
+  // Dla innych plików (CSS, JS, obrazy) użyj express.static
+  express.static(publicDir, {
+    index: false,
+    extensions: [],
+    dotfiles: 'ignore',
+    fallthrough: true
+  })(req, res, next);
 });
 
 // Eksport aplikacji dla Vercel (funkcja serverless)
