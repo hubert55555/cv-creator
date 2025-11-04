@@ -61,12 +61,29 @@ app.use(express.json({ limit: '10mb' })); // Parsuj JSON z limitem rozmiaru
 
 // Serwuj pliki statyczne z katalogu public (jedna lokalizacja dla localhost i Vercel)
 // __dirname wskazuje na api/, więc musimy wyjść o jeden poziom wyżej
-const publicDir = path.join(__dirname, '..', 'public');
-app.use(express.static(publicDir, { 
-  index: ['index.html'],
-  extensions: ['html', 'htm'],
-  dotfiles: 'ignore'
-})); // Serwuj pliki statyczne (index.html, CSS, JS)
+// Na Vercel może być inna struktura, więc sprawdzamy różne możliwości
+let publicDir = path.resolve(__dirname, '..', 'public');
+
+// Sprawdź czy katalog istnieje (tylko lokalnie, na Vercel może nie być fs dostępny)
+try {
+  const fs = require('fs');
+  if (!fs.existsSync(publicDir)) {
+    // Spróbuj alternatywnej ścieżki (na Vercel może być inaczej)
+    publicDir = path.resolve(process.cwd(), 'public');
+    if (!fs.existsSync(publicDir)) {
+      // Ostatnia próba - może pliki są w root
+      publicDir = path.resolve(process.cwd());
+      console.warn('Ostrzeżenie: Używam process.cwd() jako publicDir:', publicDir);
+    }
+  }
+} catch (e) {
+  // Na Vercel fs może nie być dostępny, użyj domyślnej ścieżki
+  console.log('Używam domyślnej ścieżki publicDir:', publicDir);
+}
+
+console.log('Public directory:', publicDir);
+console.log('__dirname:', __dirname);
+console.log('process.cwd():', process.cwd());
 
 // Credentials z zmiennych środowiskowych (BEZPIECZNE!)
 const credentials = {
@@ -82,6 +99,7 @@ const credentials = {
   }
 };
 
+// Ustaw routing API PRZED express.static, aby żądania POST/PUT/DELETE do API były obsługiwane
 // Endpoint do generowania CV
 app.post('/api/generate-cv', async (req, res) => {
   console.log('[API] Otrzymano żądanie do /api/generate-cv');
@@ -252,19 +270,52 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'API działa poprawnie' });
 });
 
+// Teraz serwuj pliki statyczne - musi być PO routingu API
+app.use(express.static(publicDir, { 
+  index: ['index.html'],
+  extensions: ['html', 'htm'],
+  dotfiles: 'ignore',
+  fallthrough: true // Pozwól na dalsze przetwarzanie jeśli plik nie istnieje
+})); // Serwuj pliki statyczne (index.html, CSS, JS)
+
 // Fallback routing dla plików statycznych (na Vercel)
 // To zapewnia, że pliki jak form.html są dostępne nawet jeśli express.static nie zadziała
+// Używamy path.resolve dla absolutnych ścieżek
 app.get('/form.html', (req, res) => {
-  res.sendFile(path.join(publicDir, 'form.html'));
+  const filePath = path.resolve(publicDir, 'form.html');
+  console.log('Wysyłanie form.html z:', filePath);
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      console.error('Błąd przy wysyłaniu form.html:', err);
+      console.error('Szukany plik:', filePath);
+      res.status(404).send('Nie znaleziono pliku form.html. Ścieżka: ' + filePath);
+    }
+  });
 });
 
 app.get('/index.html', (req, res) => {
-  res.sendFile(path.join(publicDir, 'index.html'));
+  const filePath = path.resolve(publicDir, 'index.html');
+  console.log('Wysyłanie index.html z:', filePath);
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      console.error('Błąd przy wysyłaniu index.html:', err);
+      console.error('Szukany plik:', filePath);
+      res.status(404).send('Nie znaleziono pliku index.html. Ścieżka: ' + filePath);
+    }
+  });
 });
 
 // Fallback do index.html dla root path
 app.get('/', (req, res) => {
-  res.sendFile(path.join(publicDir, 'index.html'));
+  const filePath = path.resolve(publicDir, 'index.html');
+  console.log('Wysyłanie index.html z root z:', filePath);
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      console.error('Błąd przy wysyłaniu index.html z root:', err);
+      console.error('Szukany plik:', filePath);
+      res.status(404).send('Nie znaleziono pliku index.html. Ścieżka: ' + filePath);
+    }
+  });
 });
 
 // Eksport aplikacji dla Vercel (funkcja serverless)

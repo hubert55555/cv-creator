@@ -553,6 +553,118 @@
     </footer>
 
     <script>
+        // Zawartość plików CSS i JS (do wbudowania w HTML) - cv-scaling.css jako fallback
+        const cvScalingCssFallback = `/* Wspólne style skalowania CV dla wszystkich motywów */
+:root {
+  --content-scale: 1;
+}
+.page {
+  height: var(--page-height, 297mm);
+  overflow: hidden;
+  position: relative;
+}
+.cv-columns {
+  transform-origin: top left;
+}
+@media print {
+  .page {
+    height: var(--page-height, 297mm) !important;
+    overflow: hidden !important;
+  }
+}`;
+
+        // Funkcja wbudowująca CSS i JS bezpośrednio w HTML
+        async function embedAssetsInHtml(htmlString) {
+            let processedHtml = htmlString;
+            
+            // Pobierz zawartość plików CSS i JS używając fetch
+            const assets = {
+                'cv-scaling.css': cvScalingCssFallback,
+                'cv-auto-fit.js': '',
+                'cv-inline-edit.js': '',
+            };
+
+            // Spróbuj wczytać pliki CSS z serwera
+            try {
+                const cvScalingResponse = await fetch('cv-scaling.css');
+                if (cvScalingResponse.ok) {
+                    assets['cv-scaling.css'] = await cvScalingResponse.text();
+                }
+            } catch (e) {
+                // Użyj fallback
+            }
+
+            try {
+                const styleResponse = await fetch('style.css');
+                if (styleResponse.ok) {
+                    assets['style.css'] = await styleResponse.text();
+                }
+            } catch (e) {
+                // Użyj pustej zawartości
+            }
+
+            try {
+                const style1Response = await fetch('style1.css');
+                if (style1Response.ok) {
+                    assets['style1.css'] = await style1Response.text();
+                }
+            } catch (e) {
+                // Użyj pustej zawartości
+            }
+
+            // Spróbuj wczytać pliki JS z serwera
+            try {
+                const autoFitResponse = await fetch('cv-auto-fit.js');
+                if (autoFitResponse.ok) {
+                    assets['cv-auto-fit.js'] = await autoFitResponse.text();
+                }
+            } catch (e) {
+                console.warn('Nie można wczytać cv-auto-fit.js');
+            }
+
+            try {
+                const inlineEditResponse = await fetch('cv-inline-edit.js');
+                if (inlineEditResponse.ok) {
+                    assets['cv-inline-edit.js'] = await inlineEditResponse.text();
+                }
+            } catch (e) {
+                console.warn('Nie można wczytać cv-inline-edit.js');
+            }
+
+            // Zamień linki do CSS na inline style
+            const linkCssRegex = /<link\s+rel="stylesheet"\s+href="([^"]+\.css)"\s*\/?>/gi;
+            processedHtml = processedHtml.replace(
+                linkCssRegex,
+                (match, href) => {
+                    const filename = href.split('/').pop();
+                    if (assets[filename]) {
+                        const escapedCss = assets[filename].replace(/<\/style>/gi, '<\\/style>');
+                        return '<style>' + escapedCss + '</style>';
+                    }
+                    return match;
+                }
+            );
+
+            // Zamień skrypty JS na inline script
+            const scriptOpen = '<' + 'script';
+            const scriptClose = '<' + '/' + 'script' + '>';
+            const scriptEndRegexPattern = '<' + '\\/' + 'script' + '>';
+            const scriptEndRegex = new RegExp(scriptEndRegexPattern, 'gi');
+            const scriptSrcPattern = scriptOpen + '\\s+src="([^"]+\\.js)"\\s*' + '>' + scriptClose;
+            const scriptSrcRegex = new RegExp(scriptSrcPattern, 'gi');
+            
+            processedHtml = processedHtml.replace(scriptSrcRegex, function(match, src) {
+                const filename = src.split('/').pop();
+                if (assets[filename]) {
+                    const escapedJs = assets[filename].replace(scriptEndRegex, '<\\/script>');
+                    return scriptOpen + '>' + escapedJs + scriptClose;
+                }
+                return match;
+            });
+
+            return processedHtml;
+        }
+
         // Funkcja otwierająca edytor CV (bez generowania)
         async function openEditor() {
             try {
@@ -566,8 +678,10 @@
                             '<' + 'script src="cv-inline-edit.js"><' + '/script>';
                         emptyCVTemplate = emptyCVTemplate.replace('</body>', scriptsToAdd + '</body>');
                     }
-                    // Utwórz blob URL z HTML
-                    const blob = new Blob([emptyCVTemplate], { type: 'text/html;charset=utf-8' });
+                    // Wbuduj CSS i JS w HTML przed utworzeniem blob URL
+                    const htmlWithAssets = await embedAssetsInHtml(emptyCVTemplate);
+                    // Utwórz blob URL z HTML zawierającym wbudowane zasoby
+                    const blob = new Blob([htmlWithAssets], { type: 'text/html;charset=utf-8' });
                     const blobUrl = URL.createObjectURL(blob);
                     window.open(blobUrl, '_blank');
                 } else {

@@ -67,6 +67,13 @@
         -webkit-text-fill-color: transparent;
         background-clip: text;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        transition: opacity 0.2s ease;
+        cursor: pointer !important;
+      }
+      
+      .editor-logo:hover {
+        opacity: 0.8;
+        cursor: pointer !important;
       }
 
       .editor-header-buttons {
@@ -81,11 +88,15 @@
         font-weight: 600;
         border: none;
         border-radius: 6px;
-        cursor: pointer;
+        cursor: pointer !important;
         transition: all 0.3s ease;
         text-decoration: none;
         display: inline-block;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      }
+      
+      .editor-header-btn:hover {
+        cursor: pointer !important;
       }
 
       .editor-header-btn-primary {
@@ -147,7 +158,7 @@
   <body>
     <header class="editor-header">
       <div class="editor-header-container">
-        <div class="editor-logo">📄 CV Creator</div>
+        <div class="editor-logo" onclick="if(window.opener) { window.opener.location.href = window.opener.location.origin + '/index.html'; window.close(); } else { window.location.href = window.location.origin + '/index.html'; }" style="cursor: pointer;">📄 CV Creator</div>
         <div class="editor-header-buttons" id="editor-header-buttons">
           <button id="cv-print-btn-header" onclick="if(window.printCV) { window.printCV(); } else { window.print(); }" class="editor-header-btn editor-header-btn-primary">🖨️ Drukuj</button>
         </div>
