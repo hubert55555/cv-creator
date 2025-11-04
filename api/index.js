@@ -116,6 +116,8 @@ let cachedHtmlFiles = {};
 function loadHtmlFiles() {
   try {
     const fs = require('fs');
+    
+    // Więcej możliwych ścieżek na Vercel
     const possiblePaths = [
       path.resolve(__dirname, '..', 'public'),
       path.resolve(process.cwd(), 'public'),
@@ -123,9 +125,17 @@ function loadHtmlFiles() {
       '/var/task/public',
       '/var/task',
       path.resolve(__dirname, '..', '..', 'public'),
+      // Nowe ścieżki dla Vercel
+      path.resolve(__dirname, '..'),
+      path.resolve('/var/task/.vercel/output/static'),
+      path.resolve('/var/task/.vercel/output/static/public'),
     ];
     
     console.log('🔍 Szukam plików HTML...');
+    console.log('  __dirname:', __dirname);
+    console.log('  process.cwd():', process.cwd());
+    console.log('  VERCEL:', process.env.VERCEL);
+    
     for (const basePath of possiblePaths) {
       try {
         const formPath = path.join(basePath, 'form.html');
@@ -147,14 +157,27 @@ function loadHtmlFiles() {
         }
       } catch (e) {
         console.log('  ❌ Błąd przy sprawdzaniu:', basePath, e.message);
-        // Kontynuuj próbę następnej ścieżki
       }
     }
     
-    console.error('⚠️ ⚠️ ⚠️ NIE UDAŁO SIĘ WCZYTAĆ PLIKÓW HTML DO PAMIĘCI!');
+    // Debug - lista wszystkich plików w różnych lokalizacjach
+    console.error('⚠️ ⚠️ ⚠️ NIE UDAŁO SIĘ WCZYTAĆ PLIKÓW HTML!');
+    console.error('📂 Próbuję wylistować pliki w różnych lokalizacjach:');
+    for (const debugPath of [process.cwd(), __dirname, '/var/task']) {
+      try {
+        if (fs.existsSync(debugPath)) {
+          const files = fs.readdirSync(debugPath);
+          console.error(`  ${debugPath}:`, files.join(', '));
+        }
+      } catch (e) {
+        console.error(`  Nie można odczytać ${debugPath}`);
+      }
+    }
+    
     return false;
   } catch (e) {
     console.error('🚨 Krytyczny błąd w loadHtmlFiles:', e.message);
+    console.error('Stack:', e.stack);
     return false;
   }
 }
@@ -354,6 +377,44 @@ app.post('/api/generate-cv', async (req, res) => {
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'API działa poprawnie' });
+});
+
+// Debug endpoint - pomaga zdiagnozować problemy na Vercel
+app.get('/api/debug', (req, res) => {
+  const fs = require('fs');
+  const debugInfo = {
+    __dirname,
+    'process.cwd()': process.cwd(),
+    VERCEL: process.env.VERCEL,
+    'cachedHtmlFiles keys': Object.keys(cachedHtmlFiles),
+    'form.html cached': !!cachedHtmlFiles['form.html'],
+    'index.html cached': !!cachedHtmlFiles['index.html'],
+    publicDir,
+    files: {}
+  };
+  
+  // Lista plików w różnych lokalizacjach
+  const pathsToCheck = [
+    process.cwd(),
+    __dirname,
+    path.resolve(__dirname, '..'),
+    '/var/task',
+    '/var/task/public'
+  ];
+  
+  for (const checkPath of pathsToCheck) {
+    try {
+      if (fs.existsSync(checkPath)) {
+        debugInfo.files[checkPath] = fs.readdirSync(checkPath);
+      } else {
+        debugInfo.files[checkPath] = 'NOT_EXISTS';
+      }
+    } catch (e) {
+      debugInfo.files[checkPath] = 'ERROR: ' + e.message;
+    }
+  }
+  
+  res.json(debugInfo);
 });
 
 // NAPRAWIAM TO KURWA RAZ NA ZAWSZE
