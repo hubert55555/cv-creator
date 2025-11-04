@@ -1,4 +1,4 @@
-//. Backend API Server dla Generator CV
+// Backend API Server dla Generator CV
 // Tokeny są bezpieczne - tylko na serwerze!
 
 const express = require('express');
@@ -114,43 +114,49 @@ console.log('VERCEL:', process.env.VERCEL);
 let cachedHtmlFiles = {};
 
 function loadHtmlFiles() {
-  const fs = require('fs');
-  const possiblePaths = [
-    path.resolve(__dirname, '..', 'public'),
-    path.resolve(process.cwd(), 'public'),
-    path.resolve(process.cwd()),
-    '/var/task/public',
-    '/var/task',
-    path.resolve(__dirname, '..', '..', 'public'), // Może być wyżej
-  ];
-  
-  console.log('🔍 Szukam plików HTML...');
-  for (const basePath of possiblePaths) {
-    try {
-      const formPath = path.join(basePath, 'form.html');
-      const indexPath = path.join(basePath, 'index.html');
-      
-      console.log('  Sprawdzam:', formPath);
-      
-      if (fs.existsSync && fs.existsSync(formPath) && fs.existsSync(indexPath)) {
-        console.log('✅ ZNALEZIONO! Wczytuję pliki HTML z:', basePath);
-        cachedHtmlFiles['form.html'] = fs.readFileSync(formPath, 'utf8');
-        cachedHtmlFiles['index.html'] = fs.readFileSync(indexPath, 'utf8');
-        publicDir = basePath;
-        console.log('✅ ✅ ✅ Pliki HTML wczytane do pamięci!');
-        console.log('  form.html rozmiar:', cachedHtmlFiles['form.html'].length, 'znaków');
-        console.log('  index.html rozmiar:', cachedHtmlFiles['index.html'].length, 'znaków');
-        return true;
-      } else {
-        console.log('  ❌ Brak plików w:', basePath);
+  try {
+    const fs = require('fs');
+    const possiblePaths = [
+      path.resolve(__dirname, '..', 'public'),
+      path.resolve(process.cwd(), 'public'),
+      path.resolve(process.cwd()),
+      '/var/task/public',
+      '/var/task',
+      path.resolve(__dirname, '..', '..', 'public'),
+    ];
+    
+    console.log('🔍 Szukam plików HTML...');
+    for (const basePath of possiblePaths) {
+      try {
+        const formPath = path.join(basePath, 'form.html');
+        const indexPath = path.join(basePath, 'index.html');
+        
+        console.log('  Sprawdzam:', formPath);
+        
+        if (fs.existsSync && fs.existsSync(formPath) && fs.existsSync(indexPath)) {
+          console.log('✅ ZNALEZIONO! Wczytuję pliki HTML z:', basePath);
+          cachedHtmlFiles['form.html'] = fs.readFileSync(formPath, 'utf8');
+          cachedHtmlFiles['index.html'] = fs.readFileSync(indexPath, 'utf8');
+          publicDir = basePath;
+          console.log('✅ ✅ ✅ Pliki HTML wczytane do pamięci!');
+          console.log('  form.html rozmiar:', cachedHtmlFiles['form.html']?.length || 0, 'znaków');
+          console.log('  index.html rozmiar:', cachedHtmlFiles['index.html']?.length || 0, 'znaków');
+          return true;
+        } else {
+          console.log('  ❌ Brak plików w:', basePath);
+        }
+      } catch (e) {
+        console.log('  ❌ Błąd przy sprawdzaniu:', basePath, e.message);
+        // Kontynuuj próbę następnej ścieżki
       }
-    } catch (e) {
-      console.log('  ❌ Błąd przy sprawdzaniu:', basePath, e.message);
     }
+    
+    console.error('⚠️ ⚠️ ⚠️ NIE UDAŁO SIĘ WCZYTAĆ PLIKÓW HTML DO PAMIĘCI!');
+    return false;
+  } catch (e) {
+    console.error('🚨 Krytyczny błąd w loadHtmlFiles:', e.message);
+    return false;
   }
-  
-  console.error('⚠️ ⚠️ ⚠️ NIE UDAŁO SIĘ WCZYTAĆ PLIKÓW HTML DO PAMIĘCI!');
-  return false;
 }
 
 // Wczytaj pliki przy starcie - TO MUSI DZIAŁAĆ
@@ -392,14 +398,23 @@ app.use((req, res, next) => {
     console.log('⚠️ Żądanie do .html które nie zostało obsłużone:', req.path);
     return res.status(404).send(`<h1>404</h1><p>Plik ${req.path} nie został znaleziony</p>`);
   }
-  // Dla innych plików (CSS, JS, obrazy) użyj express.static
-  express.static(publicDir, {
+  // Dla innych plików (CSS, JS, obrazy) przekaż dalej
+  next();
+});
+
+// Middleware dla plików statycznych (CSS, JS, obrazy) - NIE HTML
+// Inicjalizuj TYLKO jeśli publicDir jest zdefiniowany
+if (publicDir) {
+  const staticMiddleware = express.static(publicDir, {
     index: false,
     extensions: [],
     dotfiles: 'ignore',
     fallthrough: true
-  })(req, res, next);
-});
+  });
+  app.use(staticMiddleware);
+} else {
+  console.warn('⚠️ publicDir nie jest zdefiniowany - pomijam express.static');
+}
 
 // Eksport aplikacji dla Vercel (funkcja serverless)
 // Vercel automatycznie wykryje i użyje tego eksportu
