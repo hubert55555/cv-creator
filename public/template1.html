@@ -3,10 +3,158 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>CV – Szablon A4 (Export do PDF)</title>
+    <title>CV – Edytor</title>
     <link rel="stylesheet" href="style.css" />
+    <style>
+      :root {
+        --gradient-start: #667eea;
+        --gradient-end: #764ba2;
+        --text-dark: #212529;
+        --text-light: #6c757d;
+        --bg-light: #f8f9fa;
+        --white: #ffffff;
+        --border-color: #e0e0e0;
+      }
+
+      /* Header styling - ukryty przy druku */
+      .editor-header {
+        background: var(--white);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 1rem 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        margin-bottom: 0;
+      }
+      
+      /* Dodaj padding body aby zawartość nie była pod headerem */
+      body {
+        padding-top: 65px;
+      }
+      
+      /* Responsive dla headera */
+      @media (max-width: 768px) {
+        body {
+          padding-top: 60px;
+        }
+        
+        .editor-header {
+          padding: 0.75rem 0;
+        }
+        
+        .editor-header-btn {
+          padding: 0.4rem 0.8rem;
+          font-size: 0.85rem;
+        }
+      }
+
+      .editor-header-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .editor-logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      }
+
+      .editor-header-buttons {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      .editor-header-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      }
+
+      .editor-header-btn-primary {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+        color: var(--white);
+      }
+
+      .editor-header-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      }
+
+      .editor-header-btn-secondary {
+        background: var(--bg-light);
+        color: var(--text-dark);
+        border: 1px solid rgba(0,0,0,0.1);
+      }
+
+      .editor-header-btn-secondary:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+      }
+
+      /* Ukryj header przy druku */
+      @media print {
+        .editor-header {
+          display: none !important;
+        }
+        
+        .cv-wrapper {
+          padding: 0 !important;
+          margin: 0 !important;
+          max-width: 100% !important;
+        }
+        
+        body {
+          padding: 0 !important;
+          margin: 0 !important;
+          background: #fff !important;
+        }
+      }
+
+      /* Tło dla edytora */
+      body {
+        background: linear-gradient(135deg, var(--bg-light) 0%, #e9ecef 100%);
+        min-height: 100vh;
+        padding-bottom: 2rem;
+        margin: 0;
+      }
+
+      /* Wrapper dla CV */
+      .cv-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+      }
+    </style>
   </head>
   <body>
+    <header class="editor-header">
+      <div class="editor-header-container">
+        <div class="editor-logo">📄 CV Creator</div>
+        <div class="editor-header-buttons" id="editor-header-buttons">
+          <button id="cv-print-btn-header" onclick="if(window.printCV) { window.printCV(); } else { window.print(); }" class="editor-header-btn editor-header-btn-primary">🖨️ Drukuj</button>
+        </div>
+      </div>
+    </header>
+    
+    <div class="cv-wrapper">
     <!--
       Instrukcja użycia (skrót):
       - Duplikuj <section class="page">, aby tworzyć kolejne strony A4.
@@ -138,6 +286,7 @@
         </main>
       </div>
     </section>
+    </div>
   </body>
   </html>
 

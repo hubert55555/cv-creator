@@ -519,7 +519,7 @@
     }, 800);
   }
 
-  // Dodaj przycisk zapisywania stanu do strony (domyślnie ukryty)
+  // Dodaj przycisk zapisywania stanu do headera
   function addDownloadButton() {
     // Usuń istniejący przycisk jeśli jest (aby ponownie przypisać event listenery)
     const existingBtn = document.getElementById('cv-download-btn');
@@ -527,9 +527,16 @@
       existingBtn.remove();
     }
     
+    // Znajdź kontener przycisków w headerze
+    const headerButtons = document.getElementById('editor-header-buttons');
+    if (!headerButtons) {
+      console.warn('Nie znaleziono kontenera przycisków w headerze');
+      return;
+    }
+    
     const button = document.createElement('button');
     button.id = 'cv-download-btn';
-    button.className = 'cv-download-button';
+    button.className = 'editor-header-btn editor-header-btn-secondary';
     button.innerHTML = '💾 Zapisz stan CV';
     button.title = 'Zapisz aktualny stan CV w przeglądarce (bez pobierania pliku)';
     button.onclick = () => {
@@ -540,14 +547,13 @@
         hasUnsavedChanges = false;
       }
     };
-    button.style.display = 'block'; // Domyślnie widoczny - pozwól na zapisanie nawet bez zmian
-    document.body.appendChild(button);
+    headerButtons.appendChild(button);
     
     // Dodaj przycisk zarządzania zapisami
     addSavesManagerButton();
   }
   
-  // Dodaj przycisk zarządzania zapisanymi stanami
+  // Dodaj przycisk zarządzania zapisanymi stanami do headera
   function addSavesManagerButton() {
     // Usuń istniejący przycisk jeśli jest (aby ponownie przypisać event listenery)
     const existingBtn = document.getElementById('cv-saves-manager-btn');
@@ -555,13 +561,20 @@
       existingBtn.remove();
     }
     
+    // Znajdź kontener przycisków w headerze
+    const headerButtons = document.getElementById('editor-header-buttons');
+    if (!headerButtons) {
+      console.warn('Nie znaleziono kontenera przycisków w headerze');
+      return;
+    }
+    
     const button = document.createElement('button');
     button.id = 'cv-saves-manager-btn';
-    button.className = 'cv-saves-manager-button';
+    button.className = 'editor-header-btn editor-header-btn-secondary';
     button.innerHTML = '📚 Moje zapisy';
     button.title = 'Zarządzaj zapisanymi stanami CV';
     button.onclick = toggleSavesPanel;
-    document.body.appendChild(button);
+    headerButtons.appendChild(button);
     
     // Utwórz panel zapisów
     createSavesPanel();
@@ -643,48 +656,22 @@
   window.cvRestoreState = restoreCVState;
   window.cvDeleteState = deleteCVState;
   window.cvInit = init;
+  window.printCV = printCV;
 
-  // Dodaj przycisk drukowania do strony
+  // Dodaj przycisk drukowania - NIE DODAWAJ, bo już jest w headerze
   function addPrintButton() {
-    // Usuń istniejący przycisk jeśli jest (aby ponownie przypisać event listenery)
-    const existingBtn = document.getElementById('cv-print-btn');
-    if (existingBtn) {
-      existingBtn.remove();
-    }
-    
-    const button = document.createElement('button');
-    button.id = 'cv-print-btn';
-    button.className = 'cv-print-button';
-    button.innerHTML = '🖨️ Drukuj/Zapisz w PDF';
-    button.title = 'Drukuj lub zapisz CV jako PDF (wszystkie aktywne edycje zostaną wyłączone)';
-    button.onclick = printCV;
-    document.body.appendChild(button);
+    // Przycisk drukowania jest już w headerze template1.html, więc nie dodajemy go tutaj
+    // Funkcja pozostaje dla kompatybilności, ale nie robi nic
   }
 
-  // Pokaż przycisk pobierania
+  // Pokaż przycisk pobierania - przyciski są zawsze widoczne w headerze
   function showDownloadButton() {
-    const button = document.getElementById('cv-download-btn');
-    if (button) {
-      button.style.display = 'block'; // Nadpisz CSS display: none
-      // Przesuń przycisk zarządzania zapisami, żeby się nie nakładały
-      const savesButton = document.getElementById('cv-saves-manager-btn');
-      if (savesButton) {
-        savesButton.style.right = '200px';
-      }
-    }
+    // Przyciski w headerze są zawsze widoczne, nie trzeba nic robić
   }
 
-  // Ukryj przycisk pobierania
+  // Ukryj przycisk pobierania - przyciski są zawsze widoczne w headerze
   function hideDownloadButton() {
-    const button = document.getElementById('cv-download-btn');
-    if (button) {
-      button.style.display = 'none';
-      // Przywróć pozycję przycisku zarządzania zapisami
-      const savesButton = document.getElementById('cv-saves-manager-btn');
-      if (savesButton) {
-        savesButton.style.right = '180px';
-      }
-    }
+    // Przyciski w headerze są zawsze widoczne, nie trzeba nic robić
     hasUnsavedChanges = false;
   }
 
@@ -697,8 +684,8 @@
   function init(force = false) {
     // Jeśli force=true, usuń istniejące elementy i listenery przed ponowną inicjalizacją
     if (force) {
-      // Usuń wszystkie przyciski funkcjonalne
-      document.querySelectorAll('.cv-download-button, .cv-saves-manager-button, .cv-print-button, .cv-add-btn, .cv-delete-btn, .cv-delete-section-btn').forEach(el => el.remove());
+      // Usuń wszystkie przyciski funkcjonalne (oprócz tych w headerze)
+      document.querySelectorAll('.cv-add-btn, .cv-delete-btn, .cv-delete-section-btn').forEach(el => el.remove());
       // Usuń style jeśli istnieją
       const existingStyle = document.querySelector('style[data-cv-inline-edit]');
       if (existingStyle) existingStyle.remove();
@@ -729,10 +716,8 @@
     // Dodaj obsługę podwójnego kliknięcia na całej stronie
     document.addEventListener('dblclick', function(e) {
       // Nie obsługuj jeśli kliknięto w przyciski lub powiadomienie
-      if (          e.target.closest('.cv-download-button') || 
-          e.target.closest('.cv-saves-manager-button') ||
+      if (          e.target.closest('.editor-header') || 
           e.target.closest('.cv-saves-panel') ||
-          e.target.closest('.cv-print-button') ||
           e.target.closest('.cv-add-btn') ||
           e.target.closest('.cv-delete-btn') ||
           e.target.closest('.cv-delete-section-btn') ||
@@ -754,10 +739,8 @@
       // Sprawdź czy kliknięto w tło (body lub element poza .page)
       const clickedElement = e.target;
       const isPageElement = clickedElement.closest('.page');
-      const isButton = clickedElement.closest('.cv-download-button') || 
-                       clickedElement.closest('.cv-saves-manager-button') ||
+      const isButton = clickedElement.closest('.editor-header') || 
                        clickedElement.closest('.cv-saves-panel') ||
-                       clickedElement.closest('.cv-print-button') ||
                        clickedElement.closest('.cv-add-btn') ||
                        clickedElement.closest('.cv-delete-btn') ||
                        clickedElement.closest('.cv-delete-section-btn') ||
@@ -802,7 +785,7 @@
     style.setAttribute('data-cv-inline-edit', 'true');
     style.textContent = `
       /* Wskaźnik, że element jest edytowalny */
-      .cv-columns *:not(.cv-download-button):not(.cv-saves-manager-button):not(.cv-print-button):not(.cv-add-btn):not(.cv-delete-btn):not(.cv-delete-section-btn):not(.edit-notification):not(.edit-notification *) {
+      .cv-columns *:not(.editor-header):not(.editor-header *):not(.cv-add-btn):not(.cv-delete-btn):not(.cv-delete-section-btn):not(.edit-notification):not(.edit-notification *) {
         cursor: text;
         position: relative;
       }
@@ -811,9 +794,8 @@
       .avatar img,
       .underline,
       .rule,
-      .cv-download-button,
-      .cv-saves-manager-button,
-      .cv-print-button,
+      .editor-header,
+      .editor-header *,
       .cv-add-btn,
       .cv-delete-btn,
       .cv-delete-section-btn,
@@ -823,7 +805,7 @@
       }
       
       /* Hover effect - subtelna ramka */
-      .cv-columns *:not(.cv-download-button):not(.cv-saves-manager-button):not(.cv-print-button):not(.cv-add-btn):not(.cv-delete-btn):not(.cv-delete-section-btn):not(.edit-notification):not(.edit-notification *):hover {
+      .cv-columns *:not(.editor-header):not(.editor-header *):not(.cv-add-btn):not(.cv-delete-btn):not(.cv-delete-section-btn):not(.edit-notification):not(.edit-notification *):hover {
         outline: 1px dashed rgba(0, 123, 255, 0.3);
         outline-offset: 2px;
       }
@@ -836,58 +818,7 @@
         border-radius: 2px;
       }
       
-      /* Przycisk zapisywania stanu - domyślnie ukryty */
-      .cv-download-button {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        padding: 12px 20px;
-        background: #007bff;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-        z-index: 1000;
-        transition: all 0.2s ease;
-        display: none; /* Domyślnie ukryty - pokazywany tylko gdy są zmiany */
-      }
-      
-      .cv-download-button:hover {
-        background: #0056b3;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
-      }
-      
-      .cv-download-button:active {
-        transform: translateY(0);
-      }
-      
-      /* Przycisk zarządzania zapisami */
-      .cv-saves-manager-button {
-        position: fixed;
-        bottom: 20px;
-        right: 180px;
-        padding: 12px 20px;
-        background: #6c757d;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
-        z-index: 1000;
-        transition: all 0.2s ease;
-      }
-      
-      .cv-saves-manager-button:hover {
-        background: #5a6268;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
-      }
+      /* Przyciski są teraz w headerze - nie potrzebują fixed positioning */
       
       /* Panel zarządzania zapisami */
       .cv-saves-panel {
@@ -1025,32 +956,7 @@
       }
       
       /* Przycisk drukowania */
-      .cv-print-button {
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        padding: 12px 20px;
-        background: #28a745;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
-        z-index: 1000;
-        transition: all 0.2s ease;
-      }
-      
-      .cv-print-button:hover {
-        background: #218838;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
-      }
-      
-      .cv-print-button:active {
-        transform: translateY(0);
-      }
+      /* Przycisk drukowania jest w headerze - nie potrzebuje fixed positioning */
       
       /* Powiadomienie o edycji */
       .edit-notification {
@@ -1343,10 +1249,8 @@
       
       /* Ukryj przyciski i ostrzeżenia podczas drukowania */
       @media print {
-        .cv-download-button,
-        .cv-saves-manager-button,
+        .editor-header,
         .cv-saves-panel,
-        .cv-print-button,
         .cv-add-btn,
         .cv-delete-btn,
         .cv-delete-section-btn,
