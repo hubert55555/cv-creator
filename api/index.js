@@ -294,69 +294,46 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'API działa poprawnie' });
 });
 
-// Teraz serwuj pliki statyczne - musi być PO routingu API
-app.use(express.static(publicDir, { 
-  index: ['index.html'],
-  extensions: ['html', 'htm'],
-  dotfiles: 'ignore',
-  fallthrough: true // Pozwól na dalsze przetwarzanie jeśli plik nie istnieje
-})); // Serwuj pliki statyczne (index.html, CSS, JS)
-
-// Fallback routing dla plików statycznych (na Vercel)
-// To zapewnia, że pliki jak form.html są dostępne nawet jeśli express.static nie zadziała
-app.get('/form.html', (req, res) => {
-  // Użyj opcji root zamiast absolutnej ścieżki - działa lepiej na Vercel
-  res.sendFile('form.html', { root: publicDir }, (err) => {
-    if (err) {
-      console.error('Błąd przy wysyłaniu form.html:', err);
-      console.error('Szukany plik:', path.join(publicDir, 'form.html'));
-      console.error('publicDir:', publicDir);
-      // Spróbuj alternatywnych ścieżek
-      const altPaths = [
-        path.resolve(process.cwd(), 'public', 'form.html'),
-        path.resolve(__dirname, '..', 'public', 'form.html'),
-        path.resolve(process.cwd(), 'form.html')
-      ];
-      
-      let found = false;
-      for (const altPath of altPaths) {
-        try {
-          const fs = require('fs');
-          if (fs.existsSync && fs.existsSync(altPath)) {
-            res.sendFile(altPath);
-            found = true;
-            break;
-          }
-        } catch (e) {
-          // Kontynuuj próbę następnej ścieżki
-        }
-      }
-      
-      if (!found) {
+// Na Vercel pliki statyczne są serwowane automatycznie przez Vercel z katalogu public
+// Express nie musi ich serwować, więc routing dla plików statycznych jest tylko lokalnie
+// Dla localhost - serwuj pliki statyczne
+if (!process.env.VERCEL) {
+  app.use(express.static(publicDir, { 
+    index: ['index.html'],
+    extensions: ['html', 'htm'],
+    dotfiles: 'ignore',
+    fallthrough: true
+  }));
+  
+  // Fallback routing dla localhost
+  app.get('/form.html', (req, res) => {
+    res.sendFile('form.html', { root: publicDir }, (err) => {
+      if (err) {
+        console.error('Błąd przy wysyłaniu form.html:', err);
         res.status(404).send('Nie znaleziono pliku form.html');
       }
-    }
+    });
   });
-});
 
-app.get('/index.html', (req, res) => {
-  res.sendFile('index.html', { root: publicDir }, (err) => {
-    if (err) {
-      console.error('Błąd przy wysyłaniu index.html:', err);
-      res.status(404).send('Nie znaleziono pliku index.html');
-    }
+  app.get('/index.html', (req, res) => {
+    res.sendFile('index.html', { root: publicDir }, (err) => {
+      if (err) {
+        console.error('Błąd przy wysyłaniu index.html:', err);
+        res.status(404).send('Nie znaleziono pliku index.html');
+      }
+    });
   });
-});
 
-// Fallback do index.html dla root path
-app.get('/', (req, res) => {
-  res.sendFile('index.html', { root: publicDir }, (err) => {
-    if (err) {
-      console.error('Błąd przy wysyłaniu index.html z root:', err);
-      res.status(404).send('Nie znaleziono pliku index.html');
-    }
+  // Fallback do index.html dla root path (tylko localhost)
+  app.get('/', (req, res) => {
+    res.sendFile('index.html', { root: publicDir }, (err) => {
+      if (err) {
+        console.error('Błąd przy wysyłaniu index.html z root:', err);
+        res.status(404).send('Nie znaleziono pliku index.html');
+      }
+    });
   });
-});
+}
 
 // Eksport aplikacji dla Vercel (funkcja serverless)
 // Vercel automatycznie wykryje i użyje tego eksportu
