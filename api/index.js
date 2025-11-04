@@ -62,7 +62,11 @@ app.use(express.json({ limit: '10mb' })); // Parsuj JSON z limitem rozmiaru
 // Serwuj pliki statyczne z katalogu public (jedna lokalizacja dla localhost i Vercel)
 // __dirname wskazuje na api/, więc musimy wyjść o jeden poziom wyżej
 const publicDir = path.join(__dirname, '..', 'public');
-app.use(express.static(publicDir)); // Serwuj pliki statyczne (index.html, CSS, JS)
+app.use(express.static(publicDir, { 
+  index: ['index.html'],
+  extensions: ['html', 'htm'],
+  dotfiles: 'ignore'
+})); // Serwuj pliki statyczne (index.html, CSS, JS)
 
 // Credentials z zmiennych środowiskowych (BEZPIECZNE!)
 const credentials = {
@@ -246,6 +250,21 @@ app.post('/api/generate-cv', async (req, res) => {
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'API działa poprawnie' });
+});
+
+// Fallback routing dla plików statycznych (na Vercel)
+// To zapewnia, że pliki jak form.html są dostępne nawet jeśli express.static nie zadziała
+app.get('/form.html', (req, res) => {
+  res.sendFile(path.join(publicDir, 'form.html'));
+});
+
+app.get('/index.html', (req, res) => {
+  res.sendFile(path.join(publicDir, 'index.html'));
+});
+
+// Fallback do index.html dla root path
+app.get('/', (req, res) => {
+  res.sendFile(path.join(publicDir, 'index.html'));
 });
 
 // Eksport aplikacji dla Vercel (funkcja serverless)
