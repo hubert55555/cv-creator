@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formularz CV - CV Creator</title>
     <script src="config.js"></script>
+    <script src="header.js"></script>
     <style>
         * {
             margin: 0;
@@ -37,77 +38,6 @@
             padding: 0;
         }
 
-        /* Header */
-        header {
-            background: var(--white);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 1.5rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            margin-bottom: 2rem;
-        }
-
-        .header-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-decoration: none;
-        }
-
-        .header-buttons {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .header-btn {
-            padding: 0.6rem 1.5rem;
-            font-size: 0.95rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .header-btn-primary {
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            color: var(--white);
-        }
-
-        .header-btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .header-btn-secondary {
-            background: var(--bg-light);
-            color: var(--text-dark);
-            border: 1px solid rgba(0,0,0,0.1);
-        }
-
-        .header-btn-secondary:hover {
-            background: #e9ecef;
-            transform: translateY(-2px);
-        }
 
         /* Form Container */
         .form-wrapper {
@@ -384,29 +314,10 @@
             h1 {
                 font-size: 2rem;
             }
-
-            .header-buttons {
-                gap: 0.5rem;
-            }
-
-            .header-btn {
-                padding: 0.5rem 1rem;
-                font-size: 0.85rem;
-            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <nav class="header-container">
-            <a href="index.html" class="logo">📄 CV Creator</a>
-            <div class="header-buttons">
-                <a href="index.html" class="header-btn header-btn-secondary">🏠 Strona główna</a>
-                <button onclick="openEmptyEditor()" class="header-btn header-btn-secondary">✏️ Edytor</button>
-            </div>
-        </nav>
-    </header>
-
     <div class="form-wrapper">
         <div class="form-container">
             <h1>Formularz CV</h1>
@@ -584,6 +495,18 @@
     </div>
 
     <script>
+        // Inicjalizacja headera
+        if (window.CVCreatorHeader) {
+            window.CVCreatorHeader.initHeader({
+                logoHref: 'index.html',
+                buttons: [
+                    { label: '🏠 Strona główna', shortLabel: '🏠', href: 'index.html', type: 'secondary' },
+                    { label: '✏️ Edytor', shortLabel: '✏️', onclick: 'openEmptyEditor()', type: 'secondary' }
+                ],
+                fixed: true
+            });
+        }
+
         // Funkcje do dodawania dynamicznych sekcji
         function addSchool() {
             const container = document.getElementById('szkoly-container');
@@ -1096,6 +1019,7 @@
                 'cv-scaling.css': cvScalingCssFallback,
                 'cv-auto-fit.js': '',
                 'cv-inline-edit.js': '',
+                'header.js': '',
             };
 
             // Spróbuj wczytać pliki CSS z serwera
@@ -1143,6 +1067,15 @@
                 }
             } catch (e) {
                 console.warn('Nie można wczytać cv-inline-edit.js');
+            }
+
+            try {
+                const headerResponse = await fetch('header.js');
+                if (headerResponse.ok) {
+                    assets['header.js'] = await headerResponse.text();
+                }
+            } catch (e) {
+                console.warn('Nie można wczytać header.js');
             }
 
             // Zamień linki do CSS na inline style
@@ -1197,6 +1130,7 @@
                     if (!emptyCVTemplate.includes('cv-auto-fit.js')) {
                         // Dodaj przed </body>
                         const scriptsToAdd = '<link rel="stylesheet" href="cv-scaling.css" />' +
+                            '<script src="header.js"><' + '/script>' +
                             '<script src="cv-auto-fit.js"><' + '/script>' +
                             '<script src="cv-inline-edit.js"><' + '/script>';
                         emptyCVTemplate = emptyCVTemplate.replace('</body>', scriptsToAdd + '</body>');
@@ -1224,6 +1158,7 @@
                     '<section class="section"><div class="title">Reference</div><div class="rule"></div>',
                     '<div class="references"><div class="ref-card"><div class="name">Nazwa projektu</div><div class="small">Opis projektu</div></div></div></section>',
                     '</main></div></section>' +
+                    '<script src="header.js"><' + '/script>' +
                     '<script src="cv-auto-fit.js"><' + '/script>' +
                     '<script src="cv-inline-edit.js"><' + '/script>' +
                     '</body></html>'
@@ -1242,208 +1177,24 @@
 
         // Funkcja dodająca header do wygenerowanego CV
         function addHeaderToGeneratedCV(htmlString) {
-            // Sprawdź czy już ma header
-            if (htmlString.includes('editor-header')) {
-                return htmlString;
+            // Użyj wspólnej funkcji z header.js jeśli dostępna
+            if (window.CVCreatorHeader && window.CVCreatorHeader.injectHeaderIntoHTML) {
+                return window.CVCreatorHeader.injectHeaderIntoHTML(htmlString, {
+                    logoHref: 'index.html',
+                    buttons: [
+                        { 
+                            label: '🖨️ Drukuj',
+                            shortLabel: '🖨️',
+                            onclick: 'if(window.printCV) { window.printCV(); } else { window.print(); }', 
+                            type: 'primary' 
+                        }
+                    ],
+                    fixed: true
+                });
             }
             
-            // Header HTML
-            const headerHtml = `
-    <header class="editor-header">
-      <div class="editor-header-container">
-        <div class="editor-logo" onclick="if(window.opener) { window.opener.location.href = window.opener.location.origin + '/index.html'; window.close(); } else { window.location.href = window.location.origin + '/index.html'; }" style="cursor: pointer;">📄 CV Creator</div>
-        <div class="editor-header-buttons" id="editor-header-buttons">
-          <button id="cv-print-btn-header" onclick="if(window.printCV) { window.printCV(); } else { window.print(); }" class="editor-header-btn editor-header-btn-primary">🖨️ Drukuj</button>
-        </div>
-      </div>
-    </header>
-    
-    <div class="cv-wrapper">`;
-            
-            // Style headera
-            const headerStyles = `
-      :root {
-        --gradient-start: #667eea;
-        --gradient-end: #764ba2;
-        --text-dark: #212529;
-        --text-light: #6c757d;
-        --bg-light: #f8f9fa;
-        --white: #ffffff;
-        --border-color: #e0e0e0;
-      }
-
-      /* Header styling - ukryty przy druku */
-      .editor-header {
-        background: var(--white);
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        padding: 1rem 0;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 1000;
-        margin-bottom: 0;
-      }
-      
-      body {
-        padding-top: 65px;
-      }
-      
-      @media (max-width: 768px) {
-        body {
-          padding-top: 60px;
-        }
-        
-        .editor-header {
-          padding: 0.75rem 0;
-        }
-        
-        .editor-header-btn {
-          padding: 0.4rem 0.8rem;
-          font-size: 0.85rem;
-        }
-      }
-
-      .editor-header-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .editor-logo {
-        font-size: 1.5rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        cursor: pointer !important;
-        transition: opacity 0.2s ease;
-      }
-      
-      .editor-logo:hover {
-        opacity: 0.8;
-        cursor: pointer !important;
-      }
-
-      .editor-header-buttons {
-        display: flex;
-        gap: 0.75rem;
-        align-items: center;
-      }
-
-      .editor-header-btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
-        font-weight: 600;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer !important;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      }
-      
-      .editor-header-btn:hover {
-        cursor: pointer !important;
-      }
-
-      .editor-header-btn-primary {
-        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-        color: var(--white);
-      }
-
-      .editor-header-btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-      }
-
-      .editor-header-btn-secondary {
-        background: var(--bg-light);
-        color: var(--text-dark);
-        border: 1px solid rgba(0,0,0,0.1);
-      }
-
-      .editor-header-btn-secondary:hover {
-        background: #e9ecef;
-        transform: translateY(-2px);
-      }
-
-      @media print {
-        .editor-header {
-          display: none !important;
-        }
-        
-        .cv-wrapper {
-          padding: 0 !important;
-          margin: 0 !important;
-          max-width: 100% !important;
-        }
-        
-        body {
-          padding: 0 !important;
-          margin: 0 !important;
-          background: #fff !important;
-        }
-      }
-
-      body {
-        background: linear-gradient(135deg, var(--bg-light) 0%, #e9ecef 100%);
-        min-height: 100vh;
-        padding-bottom: 2rem;
-        margin: 0;
-      }
-
-      .cv-wrapper {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 1rem;
-      }`;
-            
-            let processedHtml = htmlString;
-            
-            // Dodaj style do <head>
-            if (processedHtml.includes('</head>')) {
-                processedHtml = processedHtml.replace('</head>', '<style>' + headerStyles + '</style></head>');
-            } else if (processedHtml.includes('<head>')) {
-                processedHtml = processedHtml.replace('<head>', '<head><style>' + headerStyles + '</style>');
-            } else {
-                // Jeśli nie ma <head>, dodaj przed <body>
-                const headSection = '<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>CV – Edytor</title><style>' + headerStyles + '</style></head>';
-                processedHtml = headSection + processedHtml;
-            }
-            
-            // Dodaj header i wrapper przed zawartością body
-            if (processedHtml.includes('<body>')) {
-                // Znajdź zawartość body
-                const bodyMatch = processedHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-                if (bodyMatch) {
-                    const bodyContent = bodyMatch[1];
-                    // Sprawdź czy zawartość nie jest już w wrapperze
-                    if (!bodyContent.includes('cv-wrapper') && !bodyContent.includes('editor-header')) {
-                        processedHtml = processedHtml.replace(
-                            /<body[^>]*>([\s\S]*?)<\/body>/i,
-                            '<body>' + headerHtml + bodyContent + '</div></body>'
-                        );
-                    }
-                } else {
-                    // Jeśli nie ma </body>, dodaj na końcu
-                    processedHtml = processedHtml.replace('<body>', '<body>' + headerHtml);
-                    if (!processedHtml.includes('</body>')) {
-                        processedHtml += '</div></body>';
-                    }
-                }
-            } else {
-                // Jeśli nie ma <body>, opakuj całą zawartość
-                processedHtml = '<body>' + headerHtml + processedHtml + '</div></body>';
-            }
-            
-            return processedHtml;
+            // Fallback jeśli header.js nie jest dostępny
+            return htmlString;
         }
 
         // Funkcja otwierająca wygenerowane CV w nowej karcie

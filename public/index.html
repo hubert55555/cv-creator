@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CV Creator - Generator CV z AI</title>
+    <script src="header.js"></script>
     <style>
         * {
             margin: 0;
@@ -36,74 +37,10 @@
             min-height: 100vh;
         }
 
-        /* Header */
-        header {
-            background: var(--white);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 1.5rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 2rem;
-        }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .header-buttons {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .header-btn {
-            padding: 0.6rem 1.5rem;
-            font-size: 0.95rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .header-btn-primary {
-            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-            color: var(--white);
-        }
-
-        .header-btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .header-btn-secondary {
-            background: var(--bg-light);
-            color: var(--text-dark);
-            border: 1px solid rgba(0,0,0,0.1);
-        }
-
-        .header-btn-secondary:hover {
-            background: #e9ecef;
-            transform: translateY(-2px);
         }
 
         /* Hero Section */
@@ -359,15 +296,6 @@
                 max-width: 300px;
             }
 
-            .header-buttons {
-                gap: 0.5rem;
-            }
-
-            .header-btn {
-                padding: 0.5rem 1rem;
-                font-size: 0.85rem;
-            }
-
             .hero-cta .btn {
                 font-size: 1rem;
                 padding: 1rem 2rem;
@@ -414,16 +342,6 @@
     </style>
 </head>
 <body>
-    <header>
-        <nav class="container">
-            <div class="logo">📄 CV Creator</div>
-            <div class="header-buttons">
-                <a href="form.html" class="header-btn header-btn-primary">📝 Formularz</a>
-                <button onclick="openEditor()" class="header-btn header-btn-secondary">✏️ Edytor</button>
-            </div>
-        </nav>
-    </header>
-
     <main>
         <!-- Hero Section -->
         <section class="hero">
@@ -553,6 +471,18 @@
     </footer>
 
     <script>
+        // Inicjalizacja headera
+        if (window.CVCreatorHeader) {
+            window.CVCreatorHeader.initHeader({
+                logoHref: 'index.html',
+                buttons: [
+                    { label: '📝 Formularz', shortLabel: '📝', href: 'form.html', type: 'primary' },
+                    { label: '✏️ Edytor', shortLabel: '✏️', onclick: 'openEditor()', type: 'secondary' }
+                ],
+                fixed: true
+            });
+        }
+
         // Zawartość plików CSS i JS (do wbudowania w HTML) - cv-scaling.css jako fallback
         const cvScalingCssFallback = `/* Wspólne style skalowania CV dla wszystkich motywów */
 :root {
@@ -582,6 +512,7 @@
                 'cv-scaling.css': cvScalingCssFallback,
                 'cv-auto-fit.js': '',
                 'cv-inline-edit.js': '',
+                'header.js': '',
             };
 
             // Spróbuj wczytać pliki CSS z serwera
@@ -631,6 +562,15 @@
                 console.warn('Nie można wczytać cv-inline-edit.js');
             }
 
+            try {
+                const headerResponse = await fetch('header.js');
+                if (headerResponse.ok) {
+                    assets['header.js'] = await headerResponse.text();
+                }
+            } catch (e) {
+                console.warn('Nie można wczytać header.js');
+            }
+
             // Zamień linki do CSS na inline style
             const linkCssRegex = /<link\s+rel="stylesheet"\s+href="([^"]+\.css)"\s*\/?>/gi;
             processedHtml = processedHtml.replace(
@@ -674,6 +614,7 @@
                     // Dodaj linki do skryptów edycji jeśli ich nie ma
                     if (!emptyCVTemplate.includes('cv-auto-fit.js')) {
                         const scriptsToAdd = '<link rel="stylesheet" href="cv-scaling.css" />' +
+                            '<' + 'script src="header.js"><' + '/script>' +
                             '<' + 'script src="cv-auto-fit.js"><' + '/script>' +
                             '<' + 'script src="cv-inline-edit.js"><' + '/script>';
                         emptyCVTemplate = emptyCVTemplate.replace('</body>', scriptsToAdd + '</body>');

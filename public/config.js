@@ -361,7 +361,8 @@ WYMAGANIA OGÓLNE:
    - <link rel="stylesheet" href="style.css" /> lub <link rel="stylesheet" href="style1.css" /> - style motywu
    - <script src="cv-auto-fit.js"></script> - skrypt automatycznie dopasowujący CV do jednej strony A4
    - <script src="cv-inline-edit.js"></script> - skrypt umożliwiający edycję inline elementów CV po podwójnym kliknięciu
-   Te elementy są niezbędne do prawidłowego działania automatycznego skalowania CV i edycji inline.`,
+   Te elementy są niezbędne do prawidłowego działania automatycznego skalowania CV i edycji inline.
+10. W sekcji języki nie rozwijaj za dużo, wystarczy informacja jaki język i jaki poziom (A1, A2, B1, B2, C1, C2).`,
 
   // Zestaw promptów do wyboru w formularzu
   // Każdy prompt zawiera tylko specyficzne instrukcje, wspólna część jest dodawana automatycznie
