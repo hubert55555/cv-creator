@@ -167,6 +167,7 @@ function loadHtmlFiles() {
       try {
         const formPath = path.join(basePath, 'form.html');
         const indexPath = path.join(basePath, 'index.html');
+        const template1Path = path.join(basePath, 'template1.html');
         
         console.log('  Sprawdzam:', basePath);
         
@@ -189,11 +190,21 @@ function loadHtmlFiles() {
           }
         }
         
-        // Jeśli znaleźliśmy oba, możemy przerwać
-        if (cachedHtmlFiles['form.html'] && cachedHtmlFiles['index.html']) {
-          console.log('✅ ✅ ✅ Oba pliki HTML wczytane do pamięci!');
+        if (fs.existsSync && fs.existsSync(template1Path)) {
+          if (!cachedHtmlFiles['template1.html']) {
+            console.log('  ✅ Znaleziono template1.html w:', template1Path);
+            cachedHtmlFiles['template1.html'] = fs.readFileSync(template1Path, 'utf8');
+            publicDir = basePath;
+            foundAny = true;
+          }
+        }
+        
+        // Jeśli znaleźliśmy wszystkie, możemy przerwać
+        if (cachedHtmlFiles['form.html'] && cachedHtmlFiles['index.html'] && cachedHtmlFiles['template1.html']) {
+          console.log('✅ ✅ ✅ Wszystkie pliki HTML wczytane do pamięci!');
           console.log('  form.html rozmiar:', cachedHtmlFiles['form.html']?.length || 0, 'znaków');
           console.log('  index.html rozmiar:', cachedHtmlFiles['index.html']?.length || 0, 'znaków');
+          console.log('  template1.html rozmiar:', cachedHtmlFiles['template1.html']?.length || 0, 'znaków');
           return true;
         }
       } catch (e) {
@@ -205,6 +216,7 @@ function loadHtmlFiles() {
       console.log('✅ Wczytano niektóre pliki HTML:');
       if (cachedHtmlFiles['form.html']) console.log('  ✅ form.html:', cachedHtmlFiles['form.html'].length, 'znaków');
       if (cachedHtmlFiles['index.html']) console.log('  ✅ index.html:', cachedHtmlFiles['index.html'].length, 'znaków');
+      if (cachedHtmlFiles['template1.html']) console.log('  ✅ template1.html:', cachedHtmlFiles['template1.html'].length, 'znaków');
       return true;
     }
     
@@ -444,6 +456,7 @@ app.get('/api/debug', (req, res) => {
     'cachedHtmlFiles keys': Object.keys(cachedHtmlFiles),
     'form.html cached': !!cachedHtmlFiles['form.html'],
     'index.html cached': !!cachedHtmlFiles['index.html'],
+    'template1.html cached': !!cachedHtmlFiles['template1.html'],
     publicDir,
     'fetch available': typeof fetch !== 'undefined',
     'Node version': process.version,
@@ -533,6 +546,26 @@ app.get('/', (req, res) => {
     return res.send(cachedHtmlFiles['index.html']);
   }
   res.status(500).send('<h1>Błąd: index.html nie został wczytany do pamięci</h1>');
+});
+
+// TEMPLATE1.HTML - dla edytora CV
+app.get('/template1.html', (req, res) => {
+  console.log('🔥 OBSŁUGUJĘ /template1.html');
+  
+  // Lazy loading
+  if (!cachedHtmlFiles['template1.html']) {
+    console.log('⚠️ template1.html nie w cache, próbuję wczytać...');
+    loadHtmlFiles();
+  }
+  
+  if (cachedHtmlFiles['template1.html']) {
+    console.log('✅ Wysyłam template1.html z cache');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.send(cachedHtmlFiles['template1.html']);
+  }
+  
+  console.error('❌ BRAK template1.html w cache!');
+  res.status(500).send('<h1>Błąd: template1.html nie został wczytany do pamięci</h1>');
 });
 
 // Serwuj TYLKO pliki statyczne (CSS, JS, obrazy) - NIE HTML!
