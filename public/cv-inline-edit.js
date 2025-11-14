@@ -521,14 +521,19 @@
 
   // Dodaj przycisk zapisywania stanu do headera
   function addDownloadButton() {
-    // Usuń istniejący przycisk jeśli jest (aby ponownie przypisać event listenery)
+    // Sprawdź czy przycisk już istnieje (może być dodany przez header.js)
     const existingBtn = document.getElementById('cv-download-btn');
     if (existingBtn) {
-      existingBtn.remove();
+      // Przycisk już istnieje, nie usuwaj go, tylko dodaj przycisk zarządzania zapisami
+      addSavesManagerButton();
+      return;
     }
     
-    // Znajdź kontener przycisków w headerze
-    const headerButtons = document.getElementById('editor-header-buttons');
+    // Znajdź kontener przycisków w headerze (stary lub nowy system)
+    let headerButtons = document.getElementById('editor-header-buttons');
+    if (!headerButtons) {
+      headerButtons = document.querySelector('.cv-creator-header-buttons');
+    }
     if (!headerButtons) {
       console.warn('Nie znaleziono kontenera przycisków w headerze');
       return;
@@ -536,7 +541,7 @@
     
     const button = document.createElement('button');
     button.id = 'cv-download-btn';
-    button.className = 'editor-header-btn editor-header-btn-secondary';
+    button.className = 'editor-header-btn editor-header-btn-secondary cv-creator-header-btn cv-creator-header-btn-secondary';
     button.innerHTML = '💾 Zapisz stan CV';
     button.title = 'Zapisz aktualny stan CV w przeglądarce (bez pobierania pliku)';
     button.onclick = () => {
@@ -555,14 +560,19 @@
   
   // Dodaj przycisk zarządzania zapisanymi stanami do headera
   function addSavesManagerButton() {
-    // Usuń istniejący przycisk jeśli jest (aby ponownie przypisać event listenery)
+    // Sprawdź czy przycisk już istnieje (może być dodany przez header.js)
     const existingBtn = document.getElementById('cv-saves-manager-btn');
     if (existingBtn) {
-      existingBtn.remove();
+      // Przycisk już istnieje, nie usuwaj go, tylko utwórz panel zapisów
+      createSavesPanel();
+      return;
     }
     
-    // Znajdź kontener przycisków w headerze
-    const headerButtons = document.getElementById('editor-header-buttons');
+    // Znajdź kontener przycisków w headerze (stary lub nowy system)
+    let headerButtons = document.getElementById('editor-header-buttons');
+    if (!headerButtons) {
+      headerButtons = document.querySelector('.cv-creator-header-buttons');
+    }
     if (!headerButtons) {
       console.warn('Nie znaleziono kontenera przycisków w headerze');
       return;
@@ -570,7 +580,7 @@
     
     const button = document.createElement('button');
     button.id = 'cv-saves-manager-btn';
-    button.className = 'editor-header-btn editor-header-btn-secondary';
+    button.className = 'editor-header-btn editor-header-btn-secondary cv-creator-header-btn cv-creator-header-btn-secondary';
     button.innerHTML = '📚 Moje zapisy';
     button.title = 'Zarządzaj zapisanymi stanami CV';
     button.onclick = toggleSavesPanel;
@@ -657,6 +667,8 @@
   window.cvDeleteState = deleteCVState;
   window.cvInit = init;
   window.printCV = printCV;
+  window.saveCVState = saveCVState;
+  window.toggleSavesPanel = toggleSavesPanel;
 
   // Dodaj przycisk drukowania - NIE DODAWAJ, bo już jest w headerze
   function addPrintButton() {
@@ -717,6 +729,7 @@
     document.addEventListener('dblclick', function(e) {
       // Nie obsługuj jeśli kliknięto w przyciski lub powiadomienie
       if (          e.target.closest('.editor-header') || 
+          e.target.closest('.cv-creator-header') ||
           e.target.closest('.cv-saves-panel') ||
           e.target.closest('.cv-add-btn') ||
           e.target.closest('.cv-delete-btn') ||
@@ -740,6 +753,7 @@
       const clickedElement = e.target;
       const isPageElement = clickedElement.closest('.page');
       const isButton = clickedElement.closest('.editor-header') || 
+                       clickedElement.closest('.cv-creator-header') ||
                        clickedElement.closest('.cv-saves-panel') ||
                        clickedElement.closest('.cv-add-btn') ||
                        clickedElement.closest('.cv-delete-btn') ||
@@ -785,7 +799,7 @@
     style.setAttribute('data-cv-inline-edit', 'true');
     style.textContent = `
       /* Wskaźnik, że element jest edytowalny */
-      .cv-columns *:not(.editor-header):not(.editor-header *):not(.cv-add-btn):not(.cv-delete-btn):not(.cv-delete-section-btn):not(.edit-notification):not(.edit-notification *) {
+      .cv-columns *:not(.editor-header):not(.editor-header *):not(.cv-creator-header):not(.cv-creator-header *):not(.cv-add-btn):not(.cv-delete-btn):not(.cv-delete-section-btn):not(.edit-notification):not(.edit-notification *) {
         cursor: text;
         position: relative;
       }
@@ -796,6 +810,8 @@
       .rule,
       .editor-header,
       .editor-header *,
+      .cv-creator-header,
+      .cv-creator-header *,
       .cv-add-btn,
       .cv-delete-btn,
       .cv-delete-section-btn,
@@ -805,7 +821,7 @@
       }
       
       /* Hover effect - subtelna ramka */
-      .cv-columns *:not(.editor-header):not(.editor-header *):not(.cv-add-btn):not(.cv-delete-btn):not(.cv-delete-section-btn):not(.edit-notification):not(.edit-notification *):hover {
+      .cv-columns *:not(.editor-header):not(.editor-header *):not(.cv-creator-header):not(.cv-creator-header *):not(.cv-add-btn):not(.cv-delete-btn):not(.cv-delete-section-btn):not(.edit-notification):not(.edit-notification *):hover {
         outline: 1px dashed rgba(0, 123, 255, 0.3);
         outline-offset: 2px;
       }
@@ -1250,6 +1266,7 @@
       /* Ukryj przyciski i ostrzeżenia podczas drukowania */
       @media print {
         .editor-header,
+        .cv-creator-header,
         .cv-saves-panel,
         .cv-add-btn,
         .cv-delete-btn,

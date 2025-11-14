@@ -282,6 +282,7 @@ window.CVCreatorHeader = (function() {
             const hrefAttr = btn.href ? ' href="' + btn.href + '"' : '';
             const onclickAttr = btn.onclick ? ' onclick="' + btn.onclick + '"' : '';
             const typeAttr = !btn.href && !btn.onclick ? ' type="button"' : '';
+            const idAttr = btn.id ? ' id="' + btn.id + '"' : '';
             const btnClass = 'cv-creator-header-btn cv-creator-header-btn-' + (btn.type || 'secondary');
             
             // Obsługa skróconych etykiet na małych ekranach
@@ -291,7 +292,7 @@ window.CVCreatorHeader = (function() {
                            '<span class="btn-label-short">' + btn.shortLabel + '</span>';
             }
             
-            buttonsHTML += '<' + tag + hrefAttr + onclickAttr + typeAttr + ' class="' + btnClass + '">' + 
+            buttonsHTML += '<' + tag + idAttr + hrefAttr + onclickAttr + typeAttr + ' class="' + btnClass + '">' + 
                            labelHTML + '</' + tag + '>';
         });
 

@@ -1187,6 +1187,20 @@
                             shortLabel: '🖨️',
                             onclick: 'if(window.printCV) { window.printCV(); } else { window.print(); }', 
                             type: 'primary' 
+                        },
+                        { 
+                            label: '💾 Zapisz stan CV',
+                            shortLabel: '💾',
+                            onclick: 'if(window.cvInit){window.cvInit();} var saveName = prompt("Wprowadź nazwę dla tego zapisu (lub zostaw puste dla automatycznej):", ""); if (saveName !== null && window.saveCVState) { window.saveCVState(saveName || null); }', 
+                            type: 'secondary',
+                            id: 'cv-download-btn'
+                        },
+                        { 
+                            label: '📚 Moje zapisy',
+                            shortLabel: '📚',
+                            onclick: 'if(window.cvInit){window.cvInit();} if(window.toggleSavesPanel){ window.toggleSavesPanel(); }', 
+                            type: 'secondary',
+                            id: 'cv-saves-manager-btn'
                         }
                     ],
                     fixed: true
